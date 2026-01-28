@@ -2,8 +2,8 @@
 Response Pool ORM model - stores Q&A pairs for vector search.
 """
 
-from sqlalchemy import Column, String, DateTime, Text, Float
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy import Column, String, DateTime, Text, Float, JSON
+from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 import uuid
 
@@ -18,9 +18,9 @@ class ResponsePool(Base):
     question = Column(Text, nullable=False, index=True)
     answer = Column(Text, nullable=False)
     category = Column(String(100), nullable=True, index=True)
-    # Vector field for embeddings (1536 dims for OpenAI)
+    # Vector field for embeddings (1536 dims for OpenAI) - stored as JSON for SQLite compatibility
     # In PostgreSQL with pgvector extension, this would be: vector(1536)
-    embedding = Column(ARRAY(Float), nullable=True)
+    embedding = Column(JSON, nullable=True)  # List of floats stored as JSON
     relevance_score = Column(Float, nullable=True, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

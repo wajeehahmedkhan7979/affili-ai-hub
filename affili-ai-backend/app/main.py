@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import get_settings
 from app.core.logging import logger
-from app.db.session import engine
+from app.db.session import get_engine_instance
 from app.db.base import Base
 from app.api.v1 import (
     health_router,
@@ -21,8 +21,8 @@ from app.api.v1 import (
 
 settings = get_settings()
 
-# Create tables on startup
-Base.metadata.create_all(bind=engine)
+# Create tables on startup (lazy - only when first accessed)
+# Base.metadata.create_all(bind=get_engine_instance())
 
 
 @asynccontextmanager
