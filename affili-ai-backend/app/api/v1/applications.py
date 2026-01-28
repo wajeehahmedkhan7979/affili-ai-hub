@@ -4,8 +4,10 @@ Applications API endpoints.
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+import json
 from app.db.session import get_db
 from app.models.application import Application, ApplicationStatus
+from app.models.program import Program
 from app.models.task import TaskType
 from app.schemas.application import ApplicationCreate, ApplicationStatusUpdate, ApplicationResponse
 from app.services.task_dispatcher import create_task
@@ -21,8 +23,27 @@ def create_application(
     db: Session = Depends(get_db),
 ):
     """Create a new application and enqueue APPLY_PROGRAM task."""
+    # Validate program exists and derive program_name for automation payload
+    program = db.query(Program).filter(Program.id == app_in.program_id).first()
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+
     # Create application
-    application = Application(**app_in.model_dump())
+    # Store name/website in user_data for traceability without changing DB schema
+    user_data_obj = {
+        "name": app_in.name,
+        "website": app_in.website,
+    }
+    if app_in.user_data:
+        # If user_data is already provided, keep it as-is but also include name/website for Phase-1.
+        # We do not attempt to parse/merge arbitrary JSON here to keep this minimal and robust.
+        user_data_obj["user_data_raw"] = app_in.user_data
+
+    application = Application(
+        program_id=app_in.program_id,
+        user_email=str(app_in.user_email),
+        user_data=json.dumps(user_data_obj),
+    )
     db.add(application)
     db.commit()
     db.refresh(application)
@@ -30,8 +51,10 @@ def create_application(
     # Create associated task for the agent
     task_payload = {
         "application_id": str(application.id),
-        "program_id": str(application.program_id),
-        "user_email": application.user_email,
+        "program_name": program.name,
+        "email": application.user_email,
+        "name": app_in.name,
+        "website": app_in.website,
     }
     create_task(db, TaskType.APPLY_PROGRAM, task_payload)
     

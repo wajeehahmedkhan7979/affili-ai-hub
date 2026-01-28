@@ -97,7 +97,8 @@ def test_create_application(client):
     app_data = {
         "program_id": str(program_id),
         "user_email": "test@example.com",
-        "user_data": '{"name": "Test User"}',
+        "name": "Test User",
+        "website": "https://example.com",
     }
     
     response = client.post("/api/v1/applications", json=app_data)

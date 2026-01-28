@@ -5,11 +5,17 @@ Polls the API for tasks and executes them using Playwright.
 
 import asyncio
 import os
+import sys
 import httpx
 import json
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from dotenv import load_dotenv
+
+# Add parent directory to path so we can import app
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from app.automation.playwright_agent import run_apply_program_automation
 
 # Load environment variables
 load_dotenv("agent_config.env")
@@ -162,27 +168,72 @@ async def run_discover_program(task_id: str, payload: Dict[str, Any]) -> None:
 
 
 async def run_apply_program(task_id: str, payload: Dict[str, Any]) -> None:
-    """Execute an APPLY_PROGRAM task."""
-    # TODO: Implement Playwright-based application submission
-    # - Launch browser
-    # - Navigate to program application page
-    # - Fill in application form
-    # - Handle CAPTCHA detection
-    # - Submit form
-    # - Return result
-    
-    logs = "Applying to program...\n"
+    """Execute an APPLY_PROGRAM task using real Playwright automation."""
+    logs = "Initializing Playwright automation for affiliate application...\n"
     await update_task(task_id, "RUNNING", logs=logs)
     
-    # Stub: simulate work
-    await asyncio.sleep(2)
+    try:
+        # Run the real Playwright automation
+        success, automation_result = await run_apply_program_automation(payload, task_id)
+        
+        if success:
+            # Extract metadata
+            screenshots = automation_result.get("screenshots", {})
+            automation_logs = automation_result.get("logs", "")
+            
+            result = {
+                "status": "submitted",
+                "success": True,
+                "program_name": payload.get("program_name", "Unknown"),
+                "email": payload.get("email"),
+                "name": payload.get("name"),
+                "website": payload.get("website"),
+                "screenshots": screenshots,
+                "submitted_at": automation_result.get("submitted_at"),
+            }
+            
+            final_logs = logs + automation_logs + "\n✅ AUTOMATION SUCCESSFUL"
+            
+            await update_task(
+                task_id,
+                "COMPLETED",
+                result=result,
+                logs=final_logs,
+                screenshot_url=screenshots.get("after"),
+            )
+            
+            print(f"✅ Task {task_id} completed successfully")
+        else:
+            # Automation failed
+            error_message = automation_result.get("error", "Unknown error")
+            automation_logs = automation_result.get("logs", "")
+            screenshots = automation_result.get("screenshots", {})
+            
+            final_logs = logs + automation_logs + f"\n❌ ERROR: {error_message}"
+            
+            await update_task(
+                task_id,
+                "FAILED",
+                error_message=error_message,
+                logs=final_logs,
+                screenshot_url=screenshots.get("after"),
+            )
+            
+            print(f"❌ Task {task_id} failed: {error_message}")
     
-    result = {
-        "status": "applied",
-        "application_url": "https://example.com/app/123",
-    }
-    
-    await update_task(task_id, "COMPLETED", result=result, logs=logs + "Application submitted\n")
+    except Exception as e:
+        error_msg = f"Exception during automation: {str(e)}"
+        final_logs = logs + error_msg
+        
+        await update_task(
+            task_id,
+            "FAILED",
+            error_message=error_msg,
+            logs=final_logs,
+        )
+        
+        print(f"❌ Task {task_id} exception: {str(e)}")
+        raise
 
 
 async def run_publish_offer(task_id: str, payload: Dict[str, Any]) -> None:

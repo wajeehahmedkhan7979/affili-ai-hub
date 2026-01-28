@@ -1,12 +1,15 @@
 # FastAPI & Web Framework
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic==2.10.6
+pydantic-settings==2.7.1
 
 # Database
-sqlalchemy==2.0.23
-psycopg2-binary==2.9.9
+# NOTE (Python 3.13): requires newer SQLAlchemy than 2.0.23 due to typing internals.
+sqlalchemy==2.0.46
+# NOTE (Windows/Python 3.13): psycopg2-binary wheels are not available; use psycopg v3 instead.
+# SQLAlchemy will use this driver when DATABASE_URL uses the "postgresql+psycopg://" scheme.
+psycopg[binary]==3.2.4
 alembic==1.13.1
 
 # Authentication & Security
@@ -20,7 +23,7 @@ pgvector==0.2.4
 
 # HTTP Client
 httpx==0.25.2
-aiohttp==3.9.1
+aiohttp==3.11.11
 
 # Testing
 pytest==7.4.3
@@ -29,7 +32,7 @@ pytest-cov==4.1.0
 httpx[http2]==0.25.2
 
 # Playwright for local agents
-playwright==1.40.0
+playwright==1.50.0
 
 # Logging & Monitoring
 python-multipart==0.0.6

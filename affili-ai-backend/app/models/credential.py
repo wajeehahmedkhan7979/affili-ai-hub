@@ -18,7 +18,7 @@ class Credential(Base):
     name = Column(String(255), nullable=False, index=True)
     credential_type = Column(String(100), nullable=False)  # gmail, stripe, sendgrid, etc.
     encrypted_value = Column(Text, nullable=False)  # AES-256-GCM encrypted
-    metadata = Column(Text, nullable=True)  # JSON string for unencrypted metadata
+    meta_data = Column(Text, nullable=True)  # JSON string for unencrypted metadata
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

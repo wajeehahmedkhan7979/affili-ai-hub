@@ -3,6 +3,7 @@ Task dispatcher service for creating and managing tasks.
 """
 
 from sqlalchemy.orm import Session
+from sqlalchemy import update
 from app.models.task import Task, TaskType, TaskStatus
 from typing import Optional, Dict, Any, List
 from datetime import datetime
@@ -39,16 +40,43 @@ def get_pending_tasks(db: Session, limit: int = 10) -> List[Task]:
 
 
 def claim_task(db: Session, task_id: uuid.UUID, agent_id: str) -> Optional[Task]:
-    """Claim a task for an agent."""
-    task = get_task(db, task_id)
-    if not task or task.status != TaskStatus.PENDING:
+    """
+    Claim a task for an agent - ATOMIC operation at database level.
+    
+    Uses single UPDATE statement with WHERE clause to ensure only ONE agent
+    can transition a task from PENDING → CLAIMED, regardless of concurrency.
+    
+    Race-condition free:
+    - No pre-read
+    - No check-then-act window
+    - Single SQL statement at DB level
+    
+    Args:
+        db: Database session
+        task_id: Task UUID to claim
+        agent_id: Agent claiming the task
+        
+    Returns:
+        Claimed Task if successful, None if task was already claimed or doesn't exist
+    """
+    # Atomic UPDATE: only succeeds if task is PENDING
+    stmt = update(Task).where(
+        (Task.id == task_id) & (Task.status == TaskStatus.PENDING)
+    ).values(
+        status=TaskStatus.CLAIMED,
+        agent_id=agent_id,
+        claimed_at=datetime.utcnow()
+    )
+    
+    result = db.execute(stmt)
+    db.commit()
+    
+    # If no rows were updated, task was already claimed or doesn't exist
+    if result.rowcount == 0:
         return None
     
-    task.status = TaskStatus.CLAIMED
-    task.agent_id = agent_id
-    task.claimed_at = datetime.utcnow()
-    db.commit()
-    db.refresh(task)
+    # Fetch and return the updated task
+    task = get_task(db, task_id)
     return task
 
 

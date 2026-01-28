@@ -4,8 +4,12 @@ Response Pool API endpoints for Q&A storage and similarity search.
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
+import uuid
+
 from app.db.session import get_db
 from app.schemas.response_pool import ResponsePoolCreate, ResponsePoolResponse, SearchRequest
+from app.models.response_pool import ResponsePool
 from app.services.response_pool import (
     create_response,
     search_responses,
@@ -13,8 +17,6 @@ from app.services.response_pool import (
     update_response,
     delete_response,
 )
-from typing import List
-import uuid
 
 router = APIRouter(prefix="/response-pool", tags=["response-pool"])
 
@@ -43,10 +45,9 @@ def list_responses(
     db: Session = Depends(get_db),
 ):
     """List all Q&A pairs."""
-    query = db.query(ResponsePoolCreate.__class__)
+    query = db.query(ResponsePool)
     if category:
-        from app.models.response_pool import ResponsePool
-        query = db.query(ResponsePool).filter(ResponsePool.category == category)
+        query = query.filter(ResponsePool.category == category)
     return query.offset(skip).limit(limit).all()
 
 
