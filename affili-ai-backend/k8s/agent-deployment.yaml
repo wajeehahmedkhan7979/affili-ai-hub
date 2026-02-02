@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery-agent
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: discovery-agent
+  template:
+    metadata:
+      labels:
+        component: discovery-agent
+    spec:
+      containers:
+      - name: agent
+        image: affili-ai-agent:latest
+        env:
+        - name: BACKEND_URL
+          value: "http://affili-ai-api-service:80"
+        - name: AGENT_POOL
+          value: "discovery"
+        envFrom:
+        - secretRef:
+            name: affili-ai-secrets
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-agent
+  namespace: default
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      component: application-agent
+  template:
+    metadata:
+      labels:
+        component: application-agent
+    spec:
+      containers:
+      - name: agent
+        image: affili-ai-agent:latest
+        env:
+        - name: BACKEND_URL
+          value: "http://affili-ai-api-service:80"
+        - name: AGENT_POOL
+          value: "application"
+        envFrom:
+        - secretRef:
+            name: affili-ai-secrets
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"

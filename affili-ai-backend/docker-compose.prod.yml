@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: affili-ai-api:latest
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./storage:/app/storage
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  discovery-agent:
+    build:
+      context: .
+      dockerfile: agent/Dockerfile_prod
+    image: affili-ai-agent:latest
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      - BACKEND_URL=http://api:8000
+      - AGENT_POOL=discovery
+      - DATABASE_URL=${DATABASE_URL}
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+    volumes:
+      - ./storage:/app/storage
+
+  application-agent:
+    image: affili-ai-agent:latest
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      - BACKEND_URL=http://api:8000
+      - AGENT_POOL=application
+      - DATABASE_URL=${DATABASE_URL}
+    deploy:
+      replicas: 4
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+    volumes:
+      - ./storage:/app/storage
+
+volumes:
+  storage:

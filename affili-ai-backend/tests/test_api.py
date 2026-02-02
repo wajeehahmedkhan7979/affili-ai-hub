@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 def test_health_check(client):
     """Test health check endpoint."""
-    response = client.get("/api/health")
+    response = client.get("/api/v1/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
@@ -28,7 +28,9 @@ def test_create_program(client):
         "is_active": True,
     }
     
-    response = client.post("/api/v1/programs", json=program_data)
+    # Needs auth token
+    headers = {"Authorization": "Bearer agent-secret-key"}
+    response = client.post("/api/v1/programs", json=program_data, headers=headers)
     assert response.status_code == 201
     data = response.json()
     assert data["name"] == "Test Affiliate Program"

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { api } from '@/lib/api';
 import { Task } from '@/lib/mock-data';
@@ -14,7 +15,8 @@ import {
   RefreshCw,
   ChevronDown,
   ChevronUp,
-  Upload
+  Upload,
+  Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -37,6 +39,7 @@ const typeLabels: Record<string, string> = {
 
 export default function Tasks() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
@@ -127,6 +130,15 @@ export default function Tasks() {
                         <Badge className={cn("border-0", config.color)}>
                           {config.label}
                         </Badge>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => navigate(`/tasks/${task.id}`)}
+                          className="gap-1"
+                        >
+                          <Eye className="h-3 w-3" />
+                          View
+                        </Button>
                         {task.status === 'PAUSED_FOR_CAPTCHA' && (
                           <Button size="sm" onClick={() => handleResumeTask(task.id)} className="gap-1">
                             <Upload className="h-3 w-3" />

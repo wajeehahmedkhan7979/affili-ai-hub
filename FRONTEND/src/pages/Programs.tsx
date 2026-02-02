@@ -144,6 +144,8 @@ export default function Programs() {
               <TableRow className="bg-muted/50">
                 <TableHead>Program</TableHead>
                 <TableHead>Network</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Confidence</TableHead>
                 <TableHead>Commission</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Last Action</TableHead>
@@ -183,6 +185,23 @@ export default function Programs() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{program.network}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant="secondary"
+                        className={program.source === 'discovered' ? 'bg-blue-500/10 text-blue-600' : ''}
+                      >
+                        {program.source || 'manual'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {program.source === 'discovered' && program.confidence_score ? (
+                        <span className="text-sm font-medium">
+                          {(program.confidence_score * 100).toFixed(0)}%
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">N/A</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <span className="font-medium text-green-600">{program.commission || 'N/A'}</span>

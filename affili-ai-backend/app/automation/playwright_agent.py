@@ -2,7 +2,7 @@
 Real Playwright-based affiliate application automation.
 
 This module contains HARDCODED automations for specific affiliate programs.
-Phase 1: Single implementation for Stripe Connect signup (proof of concept).
+Phase 2: Multiple program implementations (Stripe, Amazon, ClickBank).
 
 No abstraction, no plugins, no vision.
 """
@@ -14,10 +14,13 @@ from typing import Dict, Any, Optional, Tuple
 
 from playwright.async_api import async_playwright, Page, Browser, BrowserContext
 
+from app.automation.base_automation import BaseAffiliateAutomation
 
-class StripeConnectAutomation:
+
+class StripeConnectAutomation(BaseAffiliateAutomation):
     """Hardcoded Stripe Connect affiliate signup automation."""
     
+    PROGRAM_NAME = "Stripe Connect"
     SIGNUP_URL = "https://stripe.com/connect/partners"
     
     # Form selectors (hardcoded for THIS program)
@@ -59,14 +62,20 @@ class StripeConnectAutomation:
         page: Optional[Page] = None
         
         try:
-            # Prepare screenshot directory
-            if screenshot_dir is None:
-                screenshot_dir = os.path.join("storage", "screenshots", "stripe_connect")
-            os.makedirs(screenshot_dir, exist_ok=True)
+            # Prepare screenshot directory using base class method
+            screenshot_dir = self._prepare_screenshot_dir(screenshot_dir)
 
             async with async_playwright() as p:
                 logs.append(f"[{self._now()}] Launching Chromium browser (headless={headless})")
-                browser = await p.chromium.launch(headless=headless)
+                
+                # Configure proxy if available
+                proxy_url = os.getenv("PROXY_URL")
+                launch_options = {"headless": headless}
+                if proxy_url:
+                    launch_options["proxy"] = {"server": proxy_url}
+                    logs.append(f"[{self._now()}] Using proxy: {proxy_url[:30]}...")
+                
+                browser = await p.chromium.launch(**launch_options)
                 context = await browser.new_context()
                 page = await context.new_page()
                 
@@ -82,6 +91,23 @@ class StripeConnectAutomation:
                     timeout=30000,
                 )
                 logs.append(f"[{self._now()}] Page loaded")
+                
+                # Check for CAPTCHA
+                captcha_check = await self._check_for_captcha(page)
+                if captcha_check["detected"]:
+                    logs.append(f"[{self._now()}] CAPTCHA detected: {captcha_check['reason']}")
+                    screenshot_captcha = os.path.join(
+                        screenshot_dir,
+                        f"stripe_captcha_{datetime.utcnow().timestamp()}.png",
+                    )
+                    await page.screenshot(path=screenshot_captcha, full_page=True)
+                    return (False, {
+                        "error": "CAPTCHA_DETECTED",
+                        "logs": "\n".join(logs),
+                        "screenshots": {"captcha": screenshot_captcha},
+                        "captcha_url": captcha_check["url"],
+                        "captcha_reason": captcha_check["reason"],
+                    })
                 
                 # Take pre-fill screenshot
                 screenshot_before = os.path.join(
@@ -199,12 +225,15 @@ async def run_apply_program_automation(
     
     Task payload must contain:
     {
-        "program_name": "Stripe Connect",
+        "program_name": "Stripe Connect" | "Amazon Associates" | "ClickBank",
         "email": "affiliate@example.com",
         "name": "John Doe",
         "website": "https://example.com",
     }
     """
+    from app.automation.amazon_automation import AmazonAssociatesAutomation
+    from app.automation.clickbank_automation import ClickBankAutomation
+    
     program_name = task_payload.get("program_name", "").strip()
     email = task_payload.get("email", "").strip()
     name = task_payload.get("name", "").strip()
@@ -221,15 +250,30 @@ async def run_apply_program_automation(
     # Store screenshots under storage/screenshots/{task_id}/
     screenshot_dir = os.path.join("storage", "screenshots", str(task_id))
 
-    # Phase 1: Stripe Connect only
-    if program_name.lower() == "stripe connect":
-        automation = StripeConnectAutomation()
-        return await automation.run(
-            email=email,
-            name=name,
-            website=website,
-            headless=headless,
-            screenshot_dir=screenshot_dir,
-        )
-    else:
-        return False, {"error": f"No automation implemented for: {program_name}"}
+    # Program automation registry (case-insensitive)
+    AUTOMATIONS = {
+        "stripe connect": StripeConnectAutomation,
+        "amazon associates": AmazonAssociatesAutomation,
+        "clickbank": ClickBankAutomation,
+    }
+    
+    # Match program name (case-insensitive)
+    program_key = program_name.lower()
+    automation_class = AUTOMATIONS.get(program_key)
+    
+    if not automation_class:
+        return False, {
+            "error": f"No automation implemented for: {program_name}",
+            "supported_programs": list(AUTOMATIONS.keys())
+        }
+    
+    # Instantiate and run automation
+    automation = automation_class()
+    return await automation.run(
+        email=email,
+        name=name,
+        website=website,
+        headless=headless,
+        screenshot_dir=screenshot_dir,
+    )
+

@@ -12,9 +12,14 @@ class TaskBase(BaseModel):
     payload: Optional[Dict[str, Any]] = None
 
 
-class TaskCreate(TaskBase):
-    """Schema for creating a task."""
-    pass
+class TaskCreate(BaseModel):
+    """Schema for creating a new task."""
+    task_type: str  # Will be validated against TaskType enum
+    payload: Optional[Dict[str, Any]] = None
+    agent_pool: Optional[str] = "default"  # Pool assignment for task
+    logs: Optional[str] = None
+    screenshot_url: Optional[str] = None
+    error_message: Optional[str] = None
 
 
 class TaskUpdate(BaseModel):
@@ -29,6 +34,7 @@ class TaskUpdate(BaseModel):
 class TaskClaimRequest(BaseModel):
     """Schema for claiming a task."""
     agent_id: str
+    agent_pool: Optional[str] = "default"
 
 
 class TaskPollRequest(BaseModel):
@@ -53,6 +59,7 @@ class TaskResponse(TaskBase):
     claimed_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+    last_heartbeat: Optional[datetime] = None
     
     class Config:
         from_attributes = True

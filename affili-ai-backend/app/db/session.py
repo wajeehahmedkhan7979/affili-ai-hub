@@ -24,10 +24,17 @@ def get_engine():
         )
     else:
         # PostgreSQL/Supabase
+        # Ensure we use psycopg (v3) which is modern and handles async/sync well
+        if database_url.startswith("postgresql://"):
+            database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+        
         return create_engine(
             database_url,
+            pool_size=10,
+            max_overflow=20,
             pool_pre_ping=True,
             echo=settings.DEBUG,
+            isolation_level="READ COMMITTED"
         )
 
 
@@ -58,7 +65,11 @@ def get_engine_instance():
     return _engine
 
 
-SessionLocal = None
+def SessionLocal():
+    """Get a new database session."""
+    _initialize()
+    return _SessionLocal()
+
 
 def _get_session_local():
     """Get the SessionLocal factory."""

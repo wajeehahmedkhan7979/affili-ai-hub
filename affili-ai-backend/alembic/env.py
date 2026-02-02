@@ -11,6 +11,7 @@ from alembic import context
 # Import settings and Base models
 from app.core.config import settings
 from app.db.base import Base
+import app.models  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # the values of the [alembic] section of the alembic.ini

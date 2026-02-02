@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: affili-ai-api
+  namespace: default
+  labels:
+    app: affili-ai-hub
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: affili-ai-hub
+      component: api
+  template:
+    metadata:
+      labels:
+        app: affili-ai-hub
+        component: api
+    spec:
+      containers:
+      - name: api
+        image: affili-ai-api:latest # To be replaced by CI/CD with specific registry/tag
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: affili-ai-secrets
+        - configMapRef:
+            name: affili-ai-config
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+        healthCheck:
+          httpGet:
+            path: /api/v1/health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: affili-ai-api-service
+spec:
+  selector:
+    app: affili-ai-hub
+    component: api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

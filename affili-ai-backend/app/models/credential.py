@@ -2,8 +2,8 @@
 Credential ORM model - stores encrypted API keys and secrets.
 """
 
-from sqlalchemy import Column, String, DateTime, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, DateTime, Text, JSON
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from datetime import datetime
 import uuid
 
@@ -18,7 +18,7 @@ class Credential(Base):
     name = Column(String(255), nullable=False, index=True)
     credential_type = Column(String(100), nullable=False)  # gmail, stripe, sendgrid, etc.
     encrypted_value = Column(Text, nullable=False)  # AES-256-GCM encrypted
-    meta_data = Column(Text, nullable=True)  # JSON string for unencrypted metadata
+    meta_data = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

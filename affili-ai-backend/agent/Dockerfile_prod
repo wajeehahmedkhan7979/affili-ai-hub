@@ -1,0 +1,40 @@
+# Use official Playwright Python image that matches our version (1.50.0)
+# This prevents downloading a second set of browsers during build
+FROM mcr.microsoft.com/playwright/python:v1.50.0-jammy
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /app
+
+# Install additional system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    postgresql-client \
+    libpq-dev \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy backend requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy backend app (needed for models and logic)
+COPY app/ app/
+
+# Copy agent code
+COPY agent/ agent/
+
+# Note: playwright install is NOT needed here if the base image matches the version
+# The v1.50.0 image already contains the correct chromium build.
+# We only run it with --with-deps if we want to be absolutely sure, 
+# but for speed and IO reliability, we rely on the base image.
+RUN playwright install-deps chromium
+
+# Create storage directory for screenshots/logs
+RUN mkdir -p /app/storage
+
+# Run the agent
+CMD ["python", "agent/main.py"]

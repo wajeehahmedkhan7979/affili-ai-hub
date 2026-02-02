@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Programs from "./pages/Programs";
 import Applications from "./pages/Applications";
 import Tasks from "./pages/Tasks";
+import TaskDetailsPage from "./pages/TaskDetailsPage";
 import ResponsePool from "./pages/ResponsePool";
 import AgentSetup from "./pages/AgentSetup";
 import Integrations from "./pages/Integrations";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/programs" element={<Programs />} />
           <Route path="/applications" element={<Applications />} />
           <Route path="/tasks" element={<Tasks />} />
+          <Route path="/tasks/:taskId" element={<TaskDetailsPage />} />
           <Route path="/response-pool" element={<ResponsePool />} />
           <Route path="/agent" element={<AgentSetup />} />
           <Route path="/integrations" element={<Integrations />} />
