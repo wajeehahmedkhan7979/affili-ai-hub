@@ -16,6 +16,12 @@ from app.models.policy import Policy
 from app.models.retention import RetentionRule
 from app.models.audit_log import AuditLog
 from app.models.export_job import ExportJob
+from app.models.form_field_embedding import FormFieldEmbedding
+from app.models.outreach_log import OutreachLog, OutreachStatus
+from app.models.human_feedback import HumanFeedback, FeedbackVerdict
+from app.models.tenant_runtime_flag import TenantRuntimeFlag
+from app.models.llm_usage_log import LLMUsageLog
+from app.models.operator_action_log import OperatorActionLog, OperatorActionType
 
 __all__ = [
     "Tenant",
@@ -40,4 +46,13 @@ __all__ = [
     "RetentionRule",
     "AuditLog",
     "ExportJob",
+    "FormFieldEmbedding",
+    "OutreachLog",
+    "OutreachStatus",
+    "HumanFeedback",
+    "FeedbackVerdict",
+    "TenantRuntimeFlag",
+    "LLMUsageLog",
+    "OperatorActionLog",
+    "OperatorActionType",
 ]

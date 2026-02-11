@@ -1,0 +1,558 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-7.4.3, pluggy-1.6.0 -- D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend
+plugins: anyio-3.7.1, asyncio-0.21.1, cov-4.1.0
+asyncio: mode=Mode.STRICT
+collecting ... collected 4 items
+
+tests/test_layer1_hitl.py::TestHITLHardGate::test_policy_blocks_autonomous_submission ERROR [ 25%]
+tests/test_layer1_hitl.py::TestHITLHardGate::test_policy_allows_human_reviewed_submission ERROR [ 50%]
+tests/test_layer1_hitl.py::TestHITLHardGate::test_policy_blocks_missing_human_review_flag ERROR [ 75%]
+tests/test_layer1_hitl.py::TestHITLHardGate::test_hitl_enforcement_is_hard_policy ERROR [100%]
+
+=================================== ERRORS ====================================
+_ ERROR at setup of TestHITLHardGate.test_policy_blocks_autonomous_submission _
+
+engine = Engine(postgresql+psycopg://postgres.zyhpughphtmogpedgdlq:***@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?options=-c+statement_cache_size%3D0)
+
+    @pytest.fixture
+    def db_session(engine):
+        """Create a new database session for each test with transactional rollback."""
+        # Patch the Task mapper to exclude columns that don't exist in the v1.1 DB
+        try:
+            from app.models.task import Task
+            from sqlalchemy import inspect, MetaData, Table
+            from sqlalchemy.orm import configure_mappers
+    
+            # Reflect the live tasks table to get actual column names
+            meta = MetaData()
+            reflected_tasks = Table("tasks", meta, autoload_with=engine)
+            reflected_cols = set(reflected_tasks.columns.keys())
+    
+            # Get columns defined in the model
+            model_cols = set(Task.__table__.columns.keys())
+            missing_cols = model_cols - reflected_cols
+    
+            # If there are missing columns, need to patch the mapper
+            if missing_cols:
+                # Rebind the table to the reflected version (has only cols that exist in DB)
+                Task.__table__ = reflected_tasks
+    
+                # Clear the mapper registry's compiled state so it re-compiles with new table
+                from sqlalchemy.orm import registry as orm_registry
+                from app.db.base import Base
+    
+                # Force a complete mapper reconfiguration
+                Base.registry.configured = False
+                configure_mappers()
+        except Exception as e:
+            # If patching fails, continue and rely on db_session's error handling
+            pass
+    
+        # Dispose of any pooled connections to avoid prepared statement reuse issues
+        engine.dispose()
+    
+        connection = engine.connect()
+        # Clear any prepared statements that may be cached in the DB session
+        # This addresses: psycopg.errors.DuplicatePreparedStatement: prepared statement "_pg3_0" already exists
+        try:
+            connection.execute(text("DEALLOCATE ALL;"))
+        except Exception:
+            # Ignore errors here — some DBs (e.g., SQLite) or restricted users may not support DEALLOCATE
+            pass
+>       transaction = connection.begin()
+
+tests\conftest.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000001FCDC295260>
+
+    def begin(self) -> RootTransaction:
+        """Begin a transaction prior to autobegin occurring.
+    
+        E.g.::
+    
+            with engine.connect() as conn:
+                with conn.begin() as trans:
+                    conn.execute(table.insert(), {"username": "sandy"})
+    
+        The returned object is an instance of :class:`_engine.RootTransaction`.
+        This object represents the "scope" of the transaction,
+        which completes when either the :meth:`_engine.Transaction.rollback`
+        or :meth:`_engine.Transaction.commit` method is called; the object
+        also works as a context manager as illustrated above.
+    
+        The :meth:`_engine.Connection.begin` method begins a
+        transaction that normally will be begun in any case when the connection
+        is first used to execute a statement.  The reason this method might be
+        used would be to invoke the :meth:`_events.ConnectionEvents.begin`
+        event at a specific time, or to organize code within the scope of a
+        connection checkout in terms of context managed blocks, such as::
+    
+            with engine.connect() as conn:
+                with conn.begin():
+                    conn.execute(...)
+                    conn.execute(...)
+    
+                with conn.begin():
+                    conn.execute(...)
+                    conn.execute(...)
+    
+        The above code is not  fundamentally any different in its behavior than
+        the following code  which does not use
+        :meth:`_engine.Connection.begin`; the below style is known
+        as "commit as you go" style::
+    
+            with engine.connect() as conn:
+                conn.execute(...)
+                conn.execute(...)
+                conn.commit()
+    
+                conn.execute(...)
+                conn.execute(...)
+                conn.commit()
+    
+        From a database point of view, the :meth:`_engine.Connection.begin`
+        method does not emit any SQL or change the state of the underlying
+        DBAPI connection in any way; the Python DBAPI does not have any
+        concept of explicit transaction begin.
+    
+        .. seealso::
+    
+            :ref:`tutorial_working_with_transactions` - in the
+            :ref:`unified_tutorial`
+    
+            :meth:`_engine.Connection.begin_nested` - use a SAVEPOINT
+    
+            :meth:`_engine.Connection.begin_twophase` -
+            use a two phase /XID transaction
+    
+            :meth:`_engine.Engine.begin` - context manager available from
+            :class:`_engine.Engine`
+    
+        """
+        if self._transaction is None:
+            self._transaction = RootTransaction(self)
+            return self._transaction
+        else:
+>           raise exc.InvalidRequestError(
+                "This connection has already initialized a SQLAlchemy "
+                "Transaction() object via begin() or autobegin; can't "
+                "call begin() here unless rollback() or commit() "
+                "is called first."
+            )
+E           sqlalchemy.exc.InvalidRequestError: This connection has already initialized a SQLAlchemy Transaction() object via begin() or autobegin; can't call begin() here unless rollback() or commit() is called first.
+
+venv\Lib\site-packages\sqlalchemy\engine\base.py:859: InvalidRequestError
+_ ERROR at setup of TestHITLHardGate.test_policy_allows_human_reviewed_submission _
+
+engine = Engine(postgresql+psycopg://postgres.zyhpughphtmogpedgdlq:***@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?options=-c+statement_cache_size%3D0)
+
+    @pytest.fixture
+    def db_session(engine):
+        """Create a new database session for each test with transactional rollback."""
+        # Patch the Task mapper to exclude columns that don't exist in the v1.1 DB
+        try:
+            from app.models.task import Task
+            from sqlalchemy import inspect, MetaData, Table
+            from sqlalchemy.orm import configure_mappers
+    
+            # Reflect the live tasks table to get actual column names
+            meta = MetaData()
+            reflected_tasks = Table("tasks", meta, autoload_with=engine)
+            reflected_cols = set(reflected_tasks.columns.keys())
+    
+            # Get columns defined in the model
+            model_cols = set(Task.__table__.columns.keys())
+            missing_cols = model_cols - reflected_cols
+    
+            # If there are missing columns, need to patch the mapper
+            if missing_cols:
+                # Rebind the table to the reflected version (has only cols that exist in DB)
+                Task.__table__ = reflected_tasks
+    
+                # Clear the mapper registry's compiled state so it re-compiles with new table
+                from sqlalchemy.orm import registry as orm_registry
+                from app.db.base import Base
+    
+                # Force a complete mapper reconfiguration
+                Base.registry.configured = False
+                configure_mappers()
+        except Exception as e:
+            # If patching fails, continue and rely on db_session's error handling
+            pass
+    
+        # Dispose of any pooled connections to avoid prepared statement reuse issues
+        engine.dispose()
+    
+        connection = engine.connect()
+        # Clear any prepared statements that may be cached in the DB session
+        # This addresses: psycopg.errors.DuplicatePreparedStatement: prepared statement "_pg3_0" already exists
+        try:
+            connection.execute(text("DEALLOCATE ALL;"))
+        except Exception:
+            # Ignore errors here — some DBs (e.g., SQLite) or restricted users may not support DEALLOCATE
+            pass
+>       transaction = connection.begin()
+
+tests\conftest.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000001FCDC7C1150>
+
+    def begin(self) -> RootTransaction:
+        """Begin a transaction prior to autobegin occurring.
+    
+        E.g.::
+    
+            with engine.connect() as conn:
+                with conn.begin() as trans:
+                    conn.execute(table.insert(), {"username": "sandy"})
+    
+        The returned object is an instance of :class:`_engine.RootTransaction`.
+        This object represents the "scope" of the transaction,
+        which completes when either the :meth:`_engine.Transaction.rollback`
+        or :meth:`_engine.Transaction.commit` method is called; the object
+        also works as a context manager as illustrated above.
+    
+        The :meth:`_engine.Connection.begin` method begins a
+        transaction that normally will be begun in any case when the connection
+        is first used to execute a statement.  The reason this method might be
+        used would be to invoke the :meth:`_events.ConnectionEvents.begin`
+        event at a specific time, or to organize code within the scope of a
+        connection checkout in terms of context managed blocks, such as::
+    
+            with engine.connect() as conn:
+                with conn.begin():
+                    conn.execute(...)
+                    conn.execute(...)
+    
+                with conn.begin():
+                    conn.execute(...)
+                    conn.execute(...)
+    
+        The above code is not  fundamentally any different in its behavior than
+        the following code  which does not use
+        :meth:`_engine.Connection.begin`; the below style is known
+        as "commit as you go" style::
+    
+            with engine.connect() as conn:
+                conn.execute(...)
+                conn.execute(...)
+                conn.commit()
+    
+                conn.execute(...)
+                conn.execute(...)
+                conn.commit()
+    
+        From a database point of view, the :meth:`_engine.Connection.begin`
+        method does not emit any SQL or change the state of the underlying
+        DBAPI connection in any way; the Python DBAPI does not have any
+        concept of explicit transaction begin.
+    
+        .. seealso::
+    
+            :ref:`tutorial_working_with_transactions` - in the
+            :ref:`unified_tutorial`
+    
+            :meth:`_engine.Connection.begin_nested` - use a SAVEPOINT
+    
+            :meth:`_engine.Connection.begin_twophase` -
+            use a two phase /XID transaction
+    
+            :meth:`_engine.Engine.begin` - context manager available from
+            :class:`_engine.Engine`
+    
+        """
+        if self._transaction is None:
+            self._transaction = RootTransaction(self)
+            return self._transaction
+        else:
+>           raise exc.InvalidRequestError(
+                "This connection has already initialized a SQLAlchemy "
+                "Transaction() object via begin() or autobegin; can't "
+                "call begin() here unless rollback() or commit() "
+                "is called first."
+            )
+E           sqlalchemy.exc.InvalidRequestError: This connection has already initialized a SQLAlchemy Transaction() object via begin() or autobegin; can't call begin() here unless rollback() or commit() is called first.
+
+venv\Lib\site-packages\sqlalchemy\engine\base.py:859: InvalidRequestError
+_ ERROR at setup of TestHITLHardGate.test_policy_blocks_missing_human_review_flag _
+
+engine = Engine(postgresql+psycopg://postgres.zyhpughphtmogpedgdlq:***@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?options=-c+statement_cache_size%3D0)
+
+    @pytest.fixture
+    def db_session(engine):
+        """Create a new database session for each test with transactional rollback."""
+        # Patch the Task mapper to exclude columns that don't exist in the v1.1 DB
+        try:
+            from app.models.task import Task
+            from sqlalchemy import inspect, MetaData, Table
+            from sqlalchemy.orm import configure_mappers
+    
+            # Reflect the live tasks table to get actual column names
+            meta = MetaData()
+            reflected_tasks = Table("tasks", meta, autoload_with=engine)
+            reflected_cols = set(reflected_tasks.columns.keys())
+    
+            # Get columns defined in the model
+            model_cols = set(Task.__table__.columns.keys())
+            missing_cols = model_cols - reflected_cols
+    
+            # If there are missing columns, need to patch the mapper
+            if missing_cols:
+                # Rebind the table to the reflected version (has only cols that exist in DB)
+                Task.__table__ = reflected_tasks
+    
+                # Clear the mapper registry's compiled state so it re-compiles with new table
+                from sqlalchemy.orm import registry as orm_registry
+                from app.db.base import Base
+    
+                # Force a complete mapper reconfiguration
+                Base.registry.configured = False
+                configure_mappers()
+        except Exception as e:
+            # If patching fails, continue and rely on db_session's error handling
+            pass
+    
+        # Dispose of any pooled connections to avoid prepared statement reuse issues
+        engine.dispose()
+    
+        connection = engine.connect()
+        # Clear any prepared statements that may be cached in the DB session
+        # This addresses: psycopg.errors.DuplicatePreparedStatement: prepared statement "_pg3_0" already exists
+        try:
+            connection.execute(text("DEALLOCATE ALL;"))
+        except Exception:
+            # Ignore errors here — some DBs (e.g., SQLite) or restricted users may not support DEALLOCATE
+            pass
+>       transaction = connection.begin()
+
+tests\conftest.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000001FCDC7EE6D0>
+
+    def begin(self) -> RootTransaction:
+        """Begin a transaction prior to autobegin occurring.
+    
+        E.g.::
+    
+            with engine.connect() as conn:
+                with conn.begin() as trans:
+                    conn.execute(table.insert(), {"username": "sandy"})
+    
+        The returned object is an instance of :class:`_engine.RootTransaction`.
+        This object represents the "scope" of the transaction,
+        which completes when either the :meth:`_engine.Transaction.rollback`
+        or :meth:`_engine.Transaction.commit` method is called; the object
+        also works as a context manager as illustrated above.
+    
+        The :meth:`_engine.Connection.begin` method begins a
+        transaction that normally will be begun in any case when the connection
+        is first used to execute a statement.  The reason this method might be
+        used would be to invoke the :meth:`_events.ConnectionEvents.begin`
+        event at a specific time, or to organize code within the scope of a
+        connection checkout in terms of context managed blocks, such as::
+    
+            with engine.connect() as conn:
+                with conn.begin():
+                    conn.execute(...)
+                    conn.execute(...)
+    
+                with conn.begin():
+                    conn.execute(...)
+                    conn.execute(...)
+    
+        The above code is not  fundamentally any different in its behavior than
+        the following code  which does not use
+        :meth:`_engine.Connection.begin`; the below style is known
+        as "commit as you go" style::
+    
+            with engine.connect() as conn:
+                conn.execute(...)
+                conn.execute(...)
+                conn.commit()
+    
+                conn.execute(...)
+                conn.execute(...)
+                conn.commit()
+    
+        From a database point of view, the :meth:`_engine.Connection.begin`
+        method does not emit any SQL or change the state of the underlying
+        DBAPI connection in any way; the Python DBAPI does not have any
+        concept of explicit transaction begin.
+    
+        .. seealso::
+    
+            :ref:`tutorial_working_with_transactions` - in the
+            :ref:`unified_tutorial`
+    
+            :meth:`_engine.Connection.begin_nested` - use a SAVEPOINT
+    
+            :meth:`_engine.Connection.begin_twophase` -
+            use a two phase /XID transaction
+    
+            :meth:`_engine.Engine.begin` - context manager available from
+            :class:`_engine.Engine`
+    
+        """
+        if self._transaction is None:
+            self._transaction = RootTransaction(self)
+            return self._transaction
+        else:
+>           raise exc.InvalidRequestError(
+                "This connection has already initialized a SQLAlchemy "
+                "Transaction() object via begin() or autobegin; can't "
+                "call begin() here unless rollback() or commit() "
+                "is called first."
+            )
+E           sqlalchemy.exc.InvalidRequestError: This connection has already initialized a SQLAlchemy Transaction() object via begin() or autobegin; can't call begin() here unless rollback() or commit() is called first.
+
+venv\Lib\site-packages\sqlalchemy\engine\base.py:859: InvalidRequestError
+___ ERROR at setup of TestHITLHardGate.test_hitl_enforcement_is_hard_policy ___
+
+engine = Engine(postgresql+psycopg://postgres.zyhpughphtmogpedgdlq:***@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?options=-c+statement_cache_size%3D0)
+
+    @pytest.fixture
+    def db_session(engine):
+        """Create a new database session for each test with transactional rollback."""
+        # Patch the Task mapper to exclude columns that don't exist in the v1.1 DB
+        try:
+            from app.models.task import Task
+            from sqlalchemy import inspect, MetaData, Table
+            from sqlalchemy.orm import configure_mappers
+    
+            # Reflect the live tasks table to get actual column names
+            meta = MetaData()
+            reflected_tasks = Table("tasks", meta, autoload_with=engine)
+            reflected_cols = set(reflected_tasks.columns.keys())
+    
+            # Get columns defined in the model
+            model_cols = set(Task.__table__.columns.keys())
+            missing_cols = model_cols - reflected_cols
+    
+            # If there are missing columns, need to patch the mapper
+            if missing_cols:
+                # Rebind the table to the reflected version (has only cols that exist in DB)
+                Task.__table__ = reflected_tasks
+    
+                # Clear the mapper registry's compiled state so it re-compiles with new table
+                from sqlalchemy.orm import registry as orm_registry
+                from app.db.base import Base
+    
+                # Force a complete mapper reconfiguration
+                Base.registry.configured = False
+                configure_mappers()
+        except Exception as e:
+            # If patching fails, continue and rely on db_session's error handling
+            pass
+    
+        # Dispose of any pooled connections to avoid prepared statement reuse issues
+        engine.dispose()
+    
+        connection = engine.connect()
+        # Clear any prepared statements that may be cached in the DB session
+        # This addresses: psycopg.errors.DuplicatePreparedStatement: prepared statement "_pg3_0" already exists
+        try:
+            connection.execute(text("DEALLOCATE ALL;"))
+        except Exception:
+            # Ignore errors here — some DBs (e.g., SQLite) or restricted users may not support DEALLOCATE
+            pass
+>       transaction = connection.begin()
+
+tests\conftest.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.engine.base.Connection object at 0x000001FCDC738710>
+
+    def begin(self) -> RootTransaction:
+        """Begin a transaction prior to autobegin occurring.
+    
+        E.g.::
+    
+            with engine.connect() as conn:
+                with conn.begin() as trans:
+                    conn.execute(table.insert(), {"username": "sandy"})
+    
+        The returned object is an instance of :class:`_engine.RootTransaction`.
+        This object represents the "scope" of the transaction,
+        which completes when either the :meth:`_engine.Transaction.rollback`
+        or :meth:`_engine.Transaction.commit` method is called; the object
+        also works as a context manager as illustrated above.
+    
+        The :meth:`_engine.Connection.begin` method begins a
+        transaction that normally will be begun in any case when the connection
+        is first used to execute a statement.  The reason this method might be
+        used would be to invoke the :meth:`_events.ConnectionEvents.begin`
+        event at a specific time, or to organize code within the scope of a
+        connection checkout in terms of context managed blocks, such as::
+    
+            with engine.connect() as conn:
+                with conn.begin():
+                    conn.execute(...)
+                    conn.execute(...)
+    
+                with conn.begin():
+                    conn.execute(...)
+                    conn.execute(...)
+    
+        The above code is not  fundamentally any different in its behavior than
+        the following code  which does not use
+        :meth:`_engine.Connection.begin`; the below style is known
+        as "commit as you go" style::
+    
+            with engine.connect() as conn:
+                conn.execute(...)
+                conn.execute(...)
+                conn.commit()
+    
+                conn.execute(...)
+                conn.execute(...)
+                conn.commit()
+    
+        From a database point of view, the :meth:`_engine.Connection.begin`
+        method does not emit any SQL or change the state of the underlying
+        DBAPI connection in any way; the Python DBAPI does not have any
+        concept of explicit transaction begin.
+    
+        .. seealso::
+    
+            :ref:`tutorial_working_with_transactions` - in the
+            :ref:`unified_tutorial`
+    
+            :meth:`_engine.Connection.begin_nested` - use a SAVEPOINT
+    
+            :meth:`_engine.Connection.begin_twophase` -
+            use a two phase /XID transaction
+    
+            :meth:`_engine.Engine.begin` - context manager available from
+            :class:`_engine.Engine`
+    
+        """
+        if self._transaction is None:
+            self._transaction = RootTransaction(self)
+            return self._transaction
+        else:
+>           raise exc.InvalidRequestError(
+                "This connection has already initialized a SQLAlchemy "
+                "Transaction() object via begin() or autobegin; can't "
+                "call begin() here unless rollback() or commit() "
+                "is called first."
+            )
+E           sqlalchemy.exc.InvalidRequestError: This connection has already initialized a SQLAlchemy Transaction() object via begin() or autobegin; can't call begin() here unless rollback() or commit() is called first.
+
+venv\Lib\site-packages\sqlalchemy\engine\base.py:859: InvalidRequestError
+============================== warnings summary ===============================
+venv\Lib\site-packages\pydantic\_internal\_config.py:295: 13 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic\_internal\_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/test_layer1_hitl.py::TestHITLHardGate::test_policy_blocks_autonomous_submission
+ERROR tests/test_layer1_hitl.py::TestHITLHardGate::test_policy_allows_human_reviewed_submission
+ERROR tests/test_layer1_hitl.py::TestHITLHardGate::test_policy_blocks_missing_human_review_flag
+ERROR tests/test_layer1_hitl.py::TestHITLHardGate::test_hitl_enforcement_is_hard_policy
+======================= 13 warnings, 4 errors in 43.30s =======================

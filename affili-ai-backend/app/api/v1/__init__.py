@@ -15,6 +15,13 @@ from app.api.v1.webhooks import router as webhooks_router
 from app.api.v1.observability import router as observability_router
 from app.api.v1.policies import router as policies_router
 from app.api.v1.retention import router as retention_router
+from app.api.v1.rag import router as rag_router
+from app.api.v1.dashboards import router as dashboards_router
+from app.api.v1.feedback import router as feedback_router
+from app.api.v1.metrics import router as metrics_router
+from app.api.v1.governance import router as governance_router
+from app.api.v1.operator import router as operator_router
+from app.api.v1.agents import router as agents_router
 
 __all__ = [
     "health_router",
@@ -32,4 +39,11 @@ __all__ = [
     "observability_router",
     "policies_router",
     "retention_router",
+    "rag_router",
+    "dashboards_router",
+    "feedback_router",
+    "metrics_router",
+    "governance_router",
+    "operator_router",
+    "agents_router",
 ]

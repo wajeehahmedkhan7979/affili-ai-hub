@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useConfig } from '@/context/ConfigContext';
 
 interface HeaderProps {
   title?: string;
@@ -20,11 +20,10 @@ interface HeaderProps {
 }
 
 export function Header({ title, demoMode = false, onToggleDemoMode }: HeaderProps) {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode } = useConfig();
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
   };
 
   return (

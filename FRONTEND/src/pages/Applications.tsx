@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { api } from '@/lib/api';
 import { Application } from '@/lib/mock-data';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Clock, XCircle, Loader2, ExternalLink } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, Loader2, ExternalLink, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { BulkApplyModal } from '@/components/applications/BulkApplyModal';
 
 const statusConfig: Record<string, { icon: typeof Clock; color: string; bgColor: string }> = {
   PendingApproval: { icon: Clock, color: 'text-amber-600', bgColor: 'bg-amber-500/10' },
@@ -18,8 +20,16 @@ const statusConfig: Record<string, { icon: typeof Clock; color: string; bgColor:
 };
 
 export default function Applications() {
+  const [searchParams] = useSearchParams();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'bulk') {
+      setShowBulkModal(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     loadApplications();
@@ -41,10 +51,16 @@ export default function Applications() {
     <AppLayout title="Applications">
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <p className="text-muted-foreground">
-            Track and manage your affiliate program applications
-          </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-muted-foreground">
+              Track and manage your affiliate program applications
+            </p>
+          </div>
+          <Button className="gap-2" onClick={() => setShowBulkModal(true)}>
+            <Play className="h-4 w-4" />
+            Bulk Apply
+          </Button>
         </div>
 
         {/* Applications Grid */}
@@ -122,6 +138,12 @@ export default function Applications() {
             })
           )}
         </div>
+
+        <BulkApplyModal 
+          open={showBulkModal}
+          onOpenChange={setShowBulkModal}
+          onSuccess={() => {/* Toast */}}
+        />
       </div>
     </AppLayout>
   );

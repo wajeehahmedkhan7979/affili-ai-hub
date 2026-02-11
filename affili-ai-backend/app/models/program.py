@@ -3,7 +3,7 @@ Program ORM model - represents an affiliate program.
 """
 
 from sqlalchemy import Column, String, Text, DateTime, Boolean, Float, Integer, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import UUID
 from datetime import datetime
 import uuid
 
@@ -14,8 +14,8 @@ class Program(Base):
     """Affiliate program model."""
     __tablename__ = "programs"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
     name = Column(String(255), nullable=False, index=True)
     description = Column(Text, nullable=True)
     

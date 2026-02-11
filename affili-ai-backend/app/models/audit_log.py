@@ -4,7 +4,8 @@ Phase 7.4
 """
 
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Integer, Enum as SQLEnum, JSON
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from app.db.base import Base
 import uuid
 import enum
@@ -17,6 +18,7 @@ class AuditEventType(str, enum.Enum):
     TASK_EXECUTED = "TASK_EXECUTED"
     AGENT_CLAIMED = "AGENT_CLAIMED"
     TASK_FAILED = "TASK_FAILED"
+    TASK_REAPED = "TASK_REAPED"  # Heartbeat reaper recovery
     CAPTCHA_PAUSED = "CAPTCHA_PAUSED"
     CREDENTIAL_CREATED = "CREDENTIAL_CREATED"
     ADMIN_ACTION = "ADMIN_ACTION"
@@ -33,8 +35,8 @@ class AuditLog(Base):
     """
     __tablename__ = "audit_logs"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), index=True, nullable=False)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), index=True, nullable=False)
     
     event_type = Column(SQLEnum(AuditEventType), nullable=False, index=True)
     

@@ -60,19 +60,27 @@ class DiscoveryAgent:
         context: Optional[BrowserContext] = None
         page: Optional[Page] = None
         
+        # Normalize URL
+        if not seed_url.startswith(("http://", "https://")):
+            seed_url = "https://" + seed_url
+        
         discovered_programs = [] # Renamed from 'discovered'
         logs = []
         
         try:
             async with async_playwright() as p:
                 logs.append(f"Launching browser (headless={self.headless})")
-                browser = await p.chromium.launch(headless=self.headless)
+                browser = await p.chromium.launch(
+                    headless=self.headless,
+                    args=["--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage"]
+                )
                 context = await browser.new_context()
                 page = await context.new_page()
                 
                 # Navigate to seed URL
                 logs.append(f"Navigating to {seed_url}")
-                await page.goto(seed_url, wait_until="networkidle", timeout=self.timeout)
+                # Use domcontentloaded instead of networkidle to prevent strict timeouts on heavy sites
+                await page.goto(seed_url, wait_until="domcontentloaded", timeout=60000)
                 logs.append("Page loaded successfully")
                 
                 # Extract all links
@@ -122,7 +130,7 @@ class DiscoveryAgent:
                         # Make absolute URL
                         absolute_url = urljoin(seed_url, href)
                         
-                        discovered.append({
+                        discovered_programs.append({
                             "name": program_name,
                             "signup_url": absolute_url,
                             "base_url": seed_url,
@@ -134,20 +142,26 @@ class DiscoveryAgent:
                             f"Found: {program_name} ({absolute_url}) - confidence: {confidence:.2f}"
                         )
                 
-                logs.append(f"Discovery complete. Found {len(discovered)} potential programs.")
+                logs.append(f"Discovery complete. Found {len(discovered_programs)} potential programs.")
                 
-                return True, discovered
+                return True, discovered_programs
                 
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             logs.append(f"Error during discovery: {str(e)}")
             return False, []
         finally:
+            # Safely close resources ignoring errors if already closed
             if page:
-                await page.close()
+                try: await page.close()
+                except: pass
             if context:
-                await context.close()
+                try: await context.close()
+                except: pass
             if browser:
-                await browser.close()
+                try: await browser.close()
+                except: pass
             
             # Print logs
             for log in logs:

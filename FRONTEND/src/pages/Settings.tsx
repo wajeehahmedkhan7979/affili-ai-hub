@@ -6,9 +6,21 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Bell, Shield, Palette } from 'lucide-react';
+import { User, Bell, Shield, Palette, Database } from 'lucide-react';
+import { useConfig } from '@/context/ConfigContext';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Settings() {
+  const { darkMode, setDarkMode, demoMode, setDemoMode } = useConfig();
+  const { toast } = useToast();
+  
+  const handleSave = () => {
+    toast({
+      title: "Settings saved",
+      description: "Your preferences have been updated locally.",
+    });
+  };
+
   return (
     <AppLayout title="Settings">
       <div className="max-w-4xl">
@@ -61,7 +73,7 @@ export default function Settings() {
                 </div>
                 <Separator />
                 <div className="flex justify-end">
-                  <Button>Save Changes</Button>
+                  <Button onClick={handleSave}>Save Changes</Button>
                 </div>
               </CardContent>
             </Card>
@@ -77,34 +89,20 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-foreground">Application Approvals</p>
-                      <p className="text-sm text-muted-foreground">Get notified when applications are approved</p>
+                  {[
+                    { title: "Application Approvals", desc: "Get notified when applications are approved" },
+                    { title: "New Programs Found", desc: "Alerts when new programs match your criteria" },
+                    { title: "Captcha Required", desc: "Notify when manual input is needed" },
+                    { title: "Agent Disconnected", desc: "Alert when agent loses connection" }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">{item.title}</p>
+                        <p className="text-sm text-muted-foreground">{item.desc}</p>
+                      </div>
+                      <Switch defaultChecked />
                     </div>
-                    <Switch defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-foreground">New Programs Found</p>
-                      <p className="text-sm text-muted-foreground">Alerts when new programs match your criteria</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-foreground">Captcha Required</p>
-                      <p className="text-sm text-muted-foreground">Notify when manual input is needed</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-foreground">Agent Disconnected</p>
-                      <p className="text-sm text-muted-foreground">Alert when agent loses connection</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -122,8 +120,12 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label>API Key</Label>
                   <div className="flex gap-2">
-                    <Input type="password" defaultValue="sk_live_xxxxxxxxxxxx" readOnly />
-                    <Button variant="outline">Regenerate</Button>
+                    <Input type="text" defaultValue={import.meta.env.VITE_AGENT_API_KEY || "agent-secret-key"} readOnly />
+                    <Button variant="outline" onClick={() => {
+                        const key = import.meta.env.VITE_AGENT_API_KEY || "agent-secret-key";
+                        navigator.clipboard.writeText(key);
+                        toast({ title: "Copied", description: "API Key copied to clipboard" });
+                    }}>Copy</Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Use this key to authenticate your local agent
@@ -157,14 +159,20 @@ export default function Settings() {
                     <p className="font-medium text-foreground">Dark Mode</p>
                     <p className="text-sm text-muted-foreground">Toggle dark mode on or off</p>
                   </div>
-                  <Switch />
+                  <Switch 
+                    checked={darkMode} 
+                    onCheckedChange={setDarkMode} 
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">Compact View</p>
-                    <p className="text-sm text-muted-foreground">Show more content with smaller spacing</p>
+                    <p className="font-medium text-foreground">Demo Mode</p>
+                    <p className="text-sm text-muted-foreground">Use mock data instead of live API</p>
                   </div>
-                  <Switch />
+                  <Switch 
+                    checked={demoMode} 
+                    onCheckedChange={setDemoMode} 
+                  />
                 </div>
               </CardContent>
             </Card>

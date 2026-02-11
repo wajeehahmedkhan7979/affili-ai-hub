@@ -49,36 +49,44 @@ def record_task_metrics(db: Session, task: Task) -> Optional[TaskMetrics]:
     
     # Create metrics record
     tenant_id_str = get_tenant_id()
-    metrics = TaskMetrics(
-        tenant_id=uuid.UUID(tenant_id_str),
-        task_id=task.id,
-        program_name=program_name,
-        task_type=task.task_type.value if hasattr(task.task_type, 'value') else str(task.task_type),
-        agent_id=task.agent_id,
-        agent_pool=task.agent_pool,
-        duration_seconds=duration,
-        success=success,
-        failure_type=failure_type,
-        captcha_detected=captcha_detected
-    )
-    
-    db.add(metrics)
-    db.commit()
-    db.refresh(metrics)
-    
-    # Also update tenant usage
     try:
-        from app.services.usage_service import update_usage
-        update_usage(db, task.tenant_id, task_minutes=duration or 0)
+        metrics = TaskMetrics(
+            tenant_id=uuid.UUID(tenant_id_str),
+            task_id=task.id,
+            program_name=program_name,
+            task_type=task.task_type.value if hasattr(task.task_type, 'value') else str(task.task_type),
+            agent_id=task.agent_id,
+            agent_pool=task.agent_pool,
+            duration_seconds=duration,
+            success=success,
+            failure_type=failure_type,
+            captcha_detected=captcha_detected
+        )
+        
+        db.add(metrics)
+        # removed db.commit() to ensure atomicity with the caller (update_task_status)
+        # db.flush() is safer as it pushes to DB without committing the whole transaction
+        db.flush()
+        
+        # Also update tenant usage
+        try:
+            from app.services.usage_service import update_usage
+            update_usage(db, task.tenant_id, task_minutes=duration or 0)
+        except Exception as e:
+            logger.warning(f"Failed to update usage from metrics: {e}")
+        
+        # Update agent stats
+        try:
+            from app.services.agent_service import update_agent_stats
+            update_agent_stats(db, task)
+        except Exception as e:
+            logger.warning(f"Failed to update agent stats: {e}")
+            
+        return metrics
+        
     except Exception as e:
-        print(f"Warning: Failed to update usage from metrics: {e}")
-    
-    # Update agent stats
-    try:
-        from app.services.agent_service import update_agent_stats
-        update_agent_stats(db, task)
-    except Exception as e:
-        # Don't fail metrics recording if agent update fails
-        print(f"Warning: Failed to update agent stats: {e}")
-    
-    return metrics
+        # Crucial: Rollback ONLY if we added something to the session that failed
+        db.rollback()
+        from app.core.logging import logger
+        logger.error(f"OBSERVABILITY_FAILURE [METRICS_RECORDING] task_id={task.id} error='{e}'")
+        return None

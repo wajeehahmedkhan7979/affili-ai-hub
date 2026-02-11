@@ -3,7 +3,8 @@ Application ORM model - user application to an affiliate program.
 """
 
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Text, Enum as SQLEnum, JSON
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 import uuid
 import enum
@@ -24,12 +25,13 @@ class Application(Base):
     """User application to an affiliate program."""
     __tablename__ = "applications"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
-    program_id = Column(UUID(as_uuid=True), ForeignKey("programs.id"), nullable=False, index=True)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
+    program_id = Column(UUID(), ForeignKey("programs.id"), nullable=False, index=True)
     user_email = Column(String(255), nullable=False, index=True)
     user_data = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     status = Column(SQLEnum(ApplicationStatus), default=ApplicationStatus.PENDING, index=True)
+    agent_status = Column(String(50), default="IDLE", index=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

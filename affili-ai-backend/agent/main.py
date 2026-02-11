@@ -11,6 +11,7 @@ import json
 from typing import Optional, List, Dict, Any
 import uuid
 from typing import Dict, Any, Optional
+from datetime import datetime
 
 # Add parent directory to path so we can import app
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -19,14 +20,25 @@ from app.automation.playwright_agent import run_apply_program_automation
 
 # Load environment variables
 from dotenv import load_dotenv
-load_dotenv("agent_config.env")
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agent_config.env")
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    # Fallback to current directory for Docker/Production
+    load_dotenv("agent_config.env")
 
 # Core configuration
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
-AGENT_ID = os.getenv("AGENT_ID", f"agent-{uuid.uuid4()}")
-POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "5"))
+API_BASE_URL = os.getenv("API_BASE_URL", os.getenv("BACKEND_URL", "http://localhost:8000"))
+AGENT_CLIENT_ID = os.getenv("AGENT_CLIENT_ID", "default-agent")
+API_KEY = os.getenv("AGENT_API_KEY", "agent-secret-key")
+POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", os.getenv("POLL_INTERVAL_SECONDS", "5")))
 
-# API endpoints
+POLL_ENDPOINT = f"{API_BASE_URL}/api/v1/agent/poll"
+CLAIM_ENDPOINT = "{API_BASE_URL}/api/v1/tasks/{task_id}/claim"
+UPDATE_ENDPOINT = "{API_BASE_URL}/api/v1/tasks/{task_id}/update"
+
+
+async def poll_tasks() -> List[Dict[str, Any]]:
     """Poll the API for pending tasks."""
     headers = {"Authorization": f"Bearer {API_KEY}"}
     payload = {"client_id": AGENT_CLIENT_ID, "capabilities": ["playwright", "discovery"]}

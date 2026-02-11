@@ -29,9 +29,10 @@ const navigation = [
 
 interface SidebarProps {
   agentConnected?: boolean;
+  isDemo?: boolean;
 }
 
-export function Sidebar({ agentConnected = true }: SidebarProps) {
+export function Sidebar({ agentConnected = true, isDemo = false }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -98,7 +99,7 @@ export function Sidebar({ agentConnected = true }: SidebarProps) {
             )} />
             {!collapsed && (
               <span className="text-xs text-sidebar-foreground">
-                Agent {agentConnected ? 'Connected' : 'Disconnected'}
+                {isDemo ? 'Demo Mode' : agentConnected ? 'Agent Connected' : 'Agent Disconnected'}
               </span>
             )}
           </div>

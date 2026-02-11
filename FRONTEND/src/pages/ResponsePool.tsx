@@ -17,11 +17,15 @@ import { Search, Plus, Edit, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { formatDistanceToNow } from 'date-fns';
+import { AddResponseModal } from '@/components/response-pool/AddResponseModal';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ResponsePool() {
+  const { toast } = useToast();
   const [responses, setResponses] = useState<ResponsePoolItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     loadResponses();
@@ -49,7 +53,7 @@ export default function ResponsePool() {
               Manage your AI-powered Q&A responses for applications
             </p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowAddModal(true)}>
             <Plus className="h-4 w-4" />
             Add Response
           </Button>
@@ -145,6 +149,12 @@ export default function ResponsePool() {
             </TableBody>
           </Table>
         </div>
+
+        <AddResponseModal
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          onSuccess={loadResponses}
+        />
       </div>
     </AppLayout>
   );

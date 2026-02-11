@@ -8,6 +8,7 @@ from app.models.task import Task, TaskStatus
 from app.models.usage import TenantUsage
 from app.schemas.task import TaskCreate
 from app.core.tenant import get_tenant_id
+from app.db.retry import retry_on_deadlock
 from datetime import datetime, date
 import uuid
 from typing import List, Optional, Dict, Any
@@ -15,28 +16,44 @@ from typing import List, Optional, Dict, Any
 
 from fastapi import HTTPException
 from app.services.billing_service import check_task_limit
+from app.services.policy_service import evaluate_action
 
 def create_task(
     db: Session,
     task_type: str,
     payload: Optional[Dict[str, Any]] = None,
     agent_pool: Optional[str] = "default",
+    program_id: Optional[uuid.UUID] = None,
 ) -> Task:
     """Create a new task for an agent to process."""
     tenant_id_str = get_tenant_id()
     tenant_uuid = uuid.UUID(tenant_id_str)
     
-    # Phase 9: Billing Enforcement
-    if not check_task_limit(db, tenant_uuid):
+    
+    # Phase 9: Billing Enforcement (skip in DEBUG mode)
+    from app.core.config import get_settings
+    settings = get_settings()
+    
+    # Phase 2.5: Kill-Switch Enforcement (Bucket A Fix)
+    from app.services.cost_governance import cost_governance
+    if cost_governance.is_tenant_disabled(db, tenant_uuid):
         raise HTTPException(
-            status_code=402, 
-            detail="Billing limit reached or tenant suspended. Please upgrade your plan."
+            status_code=403,
+            detail="AI operations disabled for tenant (kill-switch active)"
         )
+
+    if not settings.DEBUG:
+        if not check_task_limit(db, tenant_uuid):
+            raise HTTPException(
+                status_code=402, 
+                detail="Billing limit reached or tenant suspended. Please upgrade your plan."
+            )
+
         
     # Phase 12: Policy Engine
     try:
-        from app.services.policy_service import evaluate_action
-        allowed, reason = evaluate_action(db, tenant_uuid, "create_task", {"task_type": task_type})
+        context = {"task_type": task_type, **(payload or {})}
+        allowed, reason = evaluate_action(db, tenant_uuid, "create_task", context)
         if not allowed:
             raise HTTPException(
                 status_code=403,
@@ -45,10 +62,22 @@ def create_task(
     except HTTPException:
         raise
     except Exception as e:
+        db.rollback() # START ROLLBACK
         print(f"Warning: Policy evaluation failed: {e}")
+
+    # Phase 6.1: Program-level Throttling
+    if program_id:
+        from app.services.cost_governance import cost_governance
+        throttle_check = cost_governance.check_program_task_limit(db, tenant_uuid, program_id)
+        if not throttle_check["allowed"]:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Program limit reached: {throttle_check['active_count']}/{throttle_check['limit']} active tasks."
+            )
 
     task = Task(
         tenant_id=tenant_uuid,
+        # program_id=program_id, # Removed in v1.1
         task_type=task_type,
         payload=payload,
         agent_pool=agent_pool,
@@ -78,17 +107,69 @@ def create_task(
         
     db.commit()
     db.refresh(task)
+    
+    # Phase 14: WebSocket Broadcast (TASK_CREATED)
+    try:
+        from app.core.websockets import manager
+        import asyncio
+        
+        payload = {
+            "event": "TASK_CREATED",
+            "data": {
+                "id": str(task.id),
+                "status": task.status,
+                "task_type": task.task_type,
+                "created_at": task.created_at.isoformat()
+            }
+        }
+        
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(manager.broadcast(payload, str(task.tenant_id)))
+        except RuntimeError:
+            pass
+    except Exception as e:
+        print(f"Warning: Failed to broadcast create event: {e}")
+        
     return task
 
 
 def get_task(db: Session, task_id: uuid.UUID) -> Optional[Task]:
-    """Get a task by ID."""
-    return db.query(Task).filter(Task.id == task_id).first()
+    """
+    Get a task by ID. Uses ORM but with load_only to avoid loading non-existent columns
+    (program_id, operator_confidence, feedback_json) in the v1.1 frozen schema.
+    """
+    from sqlalchemy.orm import load_only
+    
+    # Load only columns that definitely exist in the v1.1 DB schema
+    task = db.query(Task).options(
+        load_only(
+            Task.id, Task.tenant_id, Task.task_type, Task.status, Task.payload,
+            Task.result, Task.agent_id, Task.agent_pool, Task.retry_count,
+            Task.max_retries, Task.logs, Task.screenshot_url, Task.error_message,
+            Task.created_at, Task.updated_at, Task.claimed_at, Task.started_at,
+            Task.completed_at, Task.last_heartbeat
+        )
+    ).filter(Task.id == task_id).first()
+    
+    return task
 
 
 def get_pending_tasks(db: Session, limit: int = 100) -> List[Task]:
-    """Get pending tasks waiting for agents (tenant-scoped)."""
-    return db.query(Task).filter(
+    """Get pending tasks waiting for agents (tenant-scoped).
+    Uses load_only to avoid loading non-existent columns in v1.1 schema.
+    """
+    from sqlalchemy.orm import load_only
+    
+    return db.query(Task).options(
+        load_only(
+            Task.id, Task.tenant_id, Task.task_type, Task.status, Task.payload,
+            Task.result, Task.agent_id, Task.agent_pool, Task.retry_count,
+            Task.max_retries, Task.logs, Task.screenshot_url, Task.error_message,
+            Task.created_at, Task.updated_at, Task.claimed_at, Task.started_at,
+            Task.completed_at, Task.last_heartbeat
+        )
+    ).filter(
         Task.status == TaskStatus.PENDING,
         Task.tenant_id == uuid.UUID(get_tenant_id())
     ).limit(limit).all()
@@ -148,48 +229,91 @@ def claim_task(
     return task
 
 
+@retry_on_deadlock(max_attempts=3, backoff_ms=50)
 def find_and_claim_task(
     db: Session,
     agent_id: str,
     agent_pool: Optional[str] = "default"
 ) -> Optional[Task]:
     """
-    Find the next available task and claim it atomically using Postgres FOR UPDATE SKIP LOCKED.
+    Find the next available task and claim it atomically.
     
-    This is the modern, scalable way to implement a task queue in Postgres.
-    It prevents multiple agents from trying to claim the same task.
+    Uses UPDATE...RETURNING pattern for true atomicity:
+    - Single SQL statement (no select-update window)
+    - FOR UPDATE SKIP LOCKED on Postgres for zero contention
+    - Guaranteed no double-claims under any concurrency level
+    
+    This is production-grade task queue implementation.
     """
     tenant_id = uuid.UUID(get_tenant_id())
+    is_postgres = db.bind.dialect.name == "postgresql"
     
-    # 1. Select the next pending task for this tenant and pool
-    # Use FOR UPDATE SKIP LOCKED for high concurrency safety
-    stmt = (
-        select(Task)
-        .where(
-            and_(
-                Task.status == TaskStatus.PENDING,
-                Task.tenant_id == tenant_id,
-                or_(Task.agent_pool == agent_pool, Task.agent_pool == None)
+    if is_postgres:
+        # Postgres: Atomic UPDATE with subquery and RETURNING
+        # This is the safest pattern - single statement, zero race window
+        subquery = (
+            select(Task.id)
+            .where(
+                and_(
+                    Task.status == TaskStatus.PENDING,
+                    Task.tenant_id == tenant_id,
+                    or_(Task.agent_pool == agent_pool, Task.agent_pool == None)
+                )
             )
+            .order_by(Task.created_at.asc())
+            .limit(1)
+            .with_for_update(skip_locked=True)
+            .scalar_subquery()
         )
-        .order_by(Task.created_at.asc())
-        .limit(1)
-        .with_for_update(skip_locked=True)
-    )
-    
-    task = db.execute(stmt).scalars().first()
-    
-    if not task:
-        return None
         
-    # 2. Update status and agent info
-    task.status = TaskStatus.CLAIMED
-    task.agent_id = agent_id
-    task.claimed_at = datetime.utcnow()
+        stmt = (
+            update(Task)
+            .where(Task.id == subquery)
+            .values(
+                status=TaskStatus.CLAIMED,
+                agent_id=agent_id,
+                claimed_at=datetime.utcnow()
+            )
+            .returning(Task)
+        )
+        
+        result = db.execute(stmt)
+        db.commit()
+        task = result.scalars().first()
+        
+        if task:
+            db.refresh(task)  # Ensure all relationships loaded
+        return task
     
-    db.commit()
-    db.refresh(task)
-    return task
+    else:
+        # SQLite fallback: Select-then-update with row lock
+        # Not as robust, but acceptable for dev/test
+        stmt = (
+            select(Task)
+            .where(
+                and_(
+                    Task.status == TaskStatus.PENDING,
+                    Task.tenant_id == tenant_id,
+                    or_(Task.agent_pool == agent_pool, Task.agent_pool == None)
+                )
+            )
+            .order_by(Task.created_at.asc())
+            .limit(1)
+            .with_for_update()
+        )
+        
+        task = db.execute(stmt).scalars().first()
+        
+        if not task:
+            return None
+        
+        task.status = TaskStatus.CLAIMED
+        task.agent_id = agent_id
+        task.claimed_at = datetime.utcnow()
+        
+        db.commit()
+        db.refresh(task)
+        return task
 
 
 
@@ -201,6 +325,8 @@ def update_task_status(
     logs: Optional[str] = None,
     screenshot_url: Optional[str] = None,
     error_message: Optional[str] = None,
+    # operator_confidence: Optional[int] = None,
+    # feedback_json: Optional[Dict[str, Any]] = None,
 ) -> Optional[Task]:
     """Update task status and optionally result/logs."""
     task = get_task(db, task_id)
@@ -216,6 +342,10 @@ def update_task_status(
         task.screenshot_url = screenshot_url
     if error_message is not None:
         task.error_message = error_message
+    # if operator_confidence is not None:
+    #    task.operator_confidence = operator_confidence
+    # if feedback_json is not None:
+    #    task.feedback_json = feedback_json
     
     # Set completion timestamp for terminal states
     if status in ["COMPLETED", "FAILED", "PAUSED_FOR_CAPTCHA"]:
@@ -226,7 +356,8 @@ def update_task_status(
             from app.services.metrics_service import record_task_metrics
             record_task_metrics(db, task)
         except Exception as e:
-            # Don't fail task update if metrics recording fails
+            # Don't fail task update if metrics recording fails, but must rollback to clear poisoned session
+            db.rollback()
             print(f"Warning: Failed to record metrics for task {task_id}: {e}")
 
         # Phase 10: Webhook Trigger
@@ -259,6 +390,36 @@ def update_task_status(
     
     db.commit()
     db.refresh(task)
+    
+    # Phase 14: WebSocket Broadcast
+    # Bridge Sync (SQLAlchemy) -> Async (WebSockets)
+    try:
+        from app.core.websockets import manager
+        import asyncio
+        
+        payload = {
+            "event": "TASK_UPDATED",
+            "data": {
+                "id": str(task.id),
+                "status": task.status,
+                "task_type": task.task_type,
+                "created_at": task.created_at.isoformat() if task.created_at else None,
+                "updated_at": task.updated_at.isoformat() if task.updated_at else None
+            }
+        }
+        
+        # Check if there is a running loop
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(manager.broadcast(payload, str(task.tenant_id)))
+        except RuntimeError:
+            # No running loop (e.g. running from script/worker without async loop)
+            # In purely sync context, we skip broadcast or need a separate event bus (Redis)
+            pass
+            
+    except Exception as e:
+        print(f"Warning: Failed to broadcast WebSocket event: {e}")
+
     return task
 
 
@@ -268,7 +429,9 @@ def retry_task(db: Session, task_id: uuid.UUID) -> Optional[Task]:
     if not task:
         return None
     
-    if task.retry_count < task.max_retries:
+    # Hard Retry Ceiling for v1.1
+    retry_limit = min(task.max_retries, 3)
+    if task.retry_count < retry_limit:
         task.status = TaskStatus.PENDING
         task.retry_count += 1
         task.agent_id = None
@@ -314,11 +477,21 @@ def release_stale_tasks(db: Session, timeout_seconds: int = 300) -> int:
     Returns:
         Number of released tasks
     """
+    from sqlalchemy.orm import load_only
+    
     cutoff = datetime.utcnow().timestamp() - timeout_seconds
     cutoff_dt = datetime.fromtimestamp(cutoff)
     
-    # Find stale RUNNING tasks
-    stale_tasks = db.query(Task).filter(
+    # Find stale RUNNING tasks using load_only to avoid non-existent columns
+    stale_tasks = db.query(Task).options(
+        load_only(
+            Task.id, Task.tenant_id, Task.task_type, Task.status, Task.payload,
+            Task.result, Task.agent_id, Task.agent_pool, Task.retry_count,
+            Task.max_retries, Task.logs, Task.screenshot_url, Task.error_message,
+            Task.created_at, Task.updated_at, Task.claimed_at, Task.started_at,
+            Task.completed_at, Task.last_heartbeat
+        )
+    ).filter(
         (Task.status == TaskStatus.RUNNING) &
         (
             (Task.last_heartbeat < cutoff_dt) | 

@@ -2,7 +2,8 @@
 Policy models for automation governance.
 """
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Text, JSON
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 import uuid
 
@@ -12,8 +13,8 @@ class Policy(Base):
     """Governance policies for tenant-scoped automation."""
     __tablename__ = "policies"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     # Policy rules: e.g. {"max_tasks_per_day": 100, "allowed_domains": ["*.com"]}

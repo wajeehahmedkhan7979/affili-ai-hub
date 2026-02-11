@@ -18,7 +18,7 @@ from app.services.task_dispatcher import (
 )
 from app.services.audit_service import log_audit_event, AuditEventType
 from app.core.rate_limiter import check_rate_limit
-from app.api.dependencies import verify_tenant, require_roles, get_current_user
+from app.api.dependencies import verify_tenant, require_roles, get_current_user, get_optional_user
 from app.core.tenant import get_tenant_id
 from app.models.user import UserRole, User
 from typing import List, Optional
@@ -43,27 +43,35 @@ def create_task(
     client_ip = request.client.host if request.client else "unknown"
     check_rate_limit("task_creation", identifier=client_ip)
 
-    task = svc_create_task(
-        db, 
-        task_in.task_type, 
-        task_in.payload,
-        agent_pool=task_in.agent_pool
-    )
-    
-    # Audit Log
-    log_audit_event(
-        db=db,
-        event_type=AuditEventType.TASK_CREATED,
-        actor_type="USER",
-        actor_id=str(current_user.id),
-        actor_email=current_user.email,
-        resource_type="TASK",
-        resource_id=str(task.id),
-        details={"task_type": task_in.task_type}
-    )
-    db.commit()
-    
-    return task
+    try:
+        task = svc_create_task(
+            db, 
+            task_in.task_type, 
+            task_in.payload,
+            agent_pool=task_in.agent_pool,
+            program_id=task_in.program_id
+        )
+        
+        # Audit Log
+        log_audit_event(
+            db=db,
+            event_type=AuditEventType.TASK_CREATED,
+            actor_type="USER",
+            actor_id=str(current_user.id),
+            actor_email=current_user.email,
+            resource_type="TASK",
+            resource_id=str(task.id),
+            details={"task_type": task_in.task_type}
+        )
+        db.commit()
+        
+        return task
+    except Exception as e:
+        import traceback
+        with open("backend_error.log", "a") as f:
+            f.write(f"\n[ERROR] Task Creation Failed: {str(e)}\n")
+            f.write(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 @router.get("", response_model=List[TaskResponse])
@@ -119,32 +127,49 @@ def claim_task_endpoint(
     return task
 
 
-@router.post("/{task_id}/update", response_model=TaskResponse, 
-             dependencies=[Depends(require_roles(UserRole.OWNER, UserRole.ADMIN, UserRole.OPERATOR))])
-def update_task(
+@router.post("/{task_id}/update", response_model=TaskResponse)
+async def update_task(
     task_id: uuid.UUID,
     update_in: TaskUpdate,
+    authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db),
-    # Note: Agents call this. Agents authenticate via API Key, not User session.
-    # But require_roles implies User.
-    # The endpoint definition has: dependencies=[Depends(require_roles...)]
-    # This means ONLY Users can call this?
-    # Wait, agents use /poll and /{task_id}/update?
-    # If agents use this, require_roles will fail for them.
-    # But typically agents use a specific endpoint or we handle dual auth.
-    # In this codebase, update_task has require_roles(OWNER, ADMIN, OPERATOR).
-    # This implies HUMAN update.
-    # AGENTS might use a separate route or we need to check if agents use this.
-    # Looking at create_task (users) vs poll (agents).
-    # If agents update task status, they need access.
-    # If require_roles is present, agents (Bearer token) will fail if get_current_user expects user headers.
-    
-    # Assuming this endpoint is for HUMAN/API updates.
-    # If agents use it, we have a problem with Phase 7.2.
-    # But let's proceed assuming this is for User updates for now.
-    current_user: User = Depends(get_current_user)
+    current_human: Optional[User] = Depends(get_optional_user)
 ):
-    """Update task progress/status."""
+    """Update task progress/status. 
+    Accessible by Users (ADMIN/OPERATOR) OR Agents with valid API key.
+    """
+    from app.core.security import verify_agent_key
+    from app.api.dependencies import verify_tenant
+    
+    authenticated = False
+    actor_type = "UNKNOWN"
+    actor_id = "unknown"
+    actor_email = "unknown"
+
+    # 1. Try Human User Auth (has higher precedence for audit)
+    if current_human:
+        # Check roles
+        if current_human.role in (UserRole.OWNER, UserRole.ADMIN, UserRole.OPERATOR):
+            authenticated = True
+            actor_type = "USER"
+            actor_id = str(current_human.id)
+            actor_email = current_human.email
+    
+    # 2. Try Agent Auth (Bearer token) if not authenticated as human
+    if not authenticated and authorization and authorization.startswith("Bearer "):
+        token = authorization.split(" ")[1]
+        if verify_agent_key(token):
+            authenticated = True
+            actor_type = "AGENT"
+            # Agents often don't have a formal "User" record but act on behalf of a tenant
+            # Ensure multi-tenant context is set (usually done by verify_tenant dep)
+            task_obj = get_task(db, task_id)
+            actor_id = task_obj.agent_id if task_obj and task_obj.agent_id else "remote-agent"
+            actor_email = "agent@affili-ai.internal"
+
+    if not authenticated:
+        raise HTTPException(status_code=401, detail="Not authorized to update tasks")
+
     task = update_task_status(
         db,
         task_id,
@@ -153,6 +178,8 @@ def update_task(
         update_in.logs,
         update_in.screenshot_url,
         update_in.error_message,
+        update_in.operator_confidence,
+        update_in.feedback_json,
     )
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -160,10 +187,10 @@ def update_task(
     # Audit Log for status change
     log_audit_event(
         db=db,
-        event_type=AuditEventType.TASK_EXECUTED, # or generic update
-        actor_type="USER",
-        actor_id=str(current_user.id),
-        actor_email=current_user.email,
+        event_type=AuditEventType.TASK_EXECUTED,
+        actor_type=actor_type,
+        actor_id=actor_id,
+        actor_email=actor_email,
         resource_type="TASK",
         resource_id=str(task.id),
         details={"status": task.status, "result": str(update_in.result)[:100] if update_in.result else None}

@@ -1,12 +1,13 @@
 
+import sys
+
 try:
-    with open("test_debug.txt", "r", encoding="utf-16le") as f:
+    with open('test_output_single_hitl.txt', 'r', encoding='utf-16') as f:
         print(f.read())
 except Exception as e:
-    print(f"Failed to read utf-16le: {e}")
-    # Try utf-8 just in case
+    print(f"Error reading utf-16: {e}")
     try:
-        with open("test_debug.txt", "r", encoding="utf-8") as f:
+        with open('test_output_single_hitl.txt', 'r', encoding='utf-8') as f:
             print(f.read())
     except Exception as e2:
-        print(f"Failed to read utf-8: {e2}")
+        print(f"Error reading utf-8: {e2}")

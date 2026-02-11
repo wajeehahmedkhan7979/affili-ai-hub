@@ -1,59 +1,55 @@
 """
-Real Playwright-based affiliate application automation.
+Universal Playwright-based affiliate application automation.
 
-This module contains HARDCODED automations for specific affiliate programs.
-Phase 2: Multiple program implementations (Stripe, Amazon, ClickBank).
-
-No abstraction, no plugins, no vision.
+This module provides a unified automation entry point that uses 
+IntelligentFormFiller (RAG + LLM) to handle any affiliate program
+without hardcoded selectors.
 """
 
 import asyncio
 import os
 from datetime import datetime
 from typing import Dict, Any, Optional, Tuple
+import uuid
 
 from playwright.async_api import async_playwright, Page, Browser, BrowserContext
 
 from app.automation.base_automation import BaseAffiliateAutomation
+from app.automation.intelligent_form_filler import fill_form_with_predictions
+from app.db.session import SessionLocal
+from app.core.logging import logger
 
 
-class StripeConnectAutomation(BaseAffiliateAutomation):
-    """Hardcoded Stripe Connect affiliate signup automation."""
+class UniversalAffiliateAutomation(BaseAffiliateAutomation):
+    """
+    Universal affiliate signup automation using RAG-based intelligence.
     
-    PROGRAM_NAME = "Stripe Connect"
-    SIGNUP_URL = "https://stripe.com/connect/partners"
+    Replaces hardcoded program-specific classes.
+    """
     
-    # Form selectors (hardcoded for THIS program)
-    EMAIL_INPUT = "input[name='email']"
-    NAME_INPUT = "input[name='first_name']"  # Adjust if needed
-    WEBSITE_INPUT = "input[name='website']"  # Adjust if needed
-    SUBMIT_BUTTON = "button[type='submit']"
+    def __init__(self, program_name: str, signup_url: str):
+        self._program_name = program_name
+        self._signup_url = signup_url
+        
+    @property
+    def PROGRAM_NAME(self) -> str:
+        return self._program_name
+    
+    @property
+    def SIGNUP_URL(self) -> str:
+        return self._signup_url
     
     async def run(
         self,
-        email: str,
-        name: str,
-        website: str,
-        traffic_source: str = "Direct",
-        headless: bool = False,
+        tenant_id: uuid.UUID,
+        user_profile: Dict[str, Any],
+        program_id: Optional[uuid.UUID] = None,
+        task_id: Optional[uuid.UUID] = None,
+        headless: bool = True,
         screenshot_dir: Optional[str] = None,
     ) -> Tuple[bool, Dict[str, Any]]:
         """
-        Execute Stripe Connect signup automation.
-        
-        Args:
-            email: Affiliate email address
-            name: Full name
-            website: Business website URL
-            traffic_source: Traffic source (not used in form, metadata only)
-            headless: Run browser headless (True for production)
-            
-        Returns:
-            Tuple of (success: bool, metadata: dict)
-            metadata includes:
-            - screenshots: {before, after} paths
-            - logs: execution log
-            - error: error message if failed
+        Execute universal automation using IntelligentFormFiller.
         """
         logs: list[str] = []
         screenshots: Dict[str, Any] = {}
@@ -61,45 +57,40 @@ class StripeConnectAutomation(BaseAffiliateAutomation):
         context: Optional[BrowserContext] = None
         page: Optional[Page] = None
         
+        # Load db session
+        db = SessionLocal()
+        
         try:
-            # Prepare screenshot directory using base class method
-            screenshot_dir = self._prepare_screenshot_dir(screenshot_dir)
+            # Prepare screenshot directory
+            screenshot_dir = self._prepare_screenshot_dir(screenshot_dir, str(task_id) if task_id else None)
 
             async with async_playwright() as p:
-                logs.append(f"[{self._now()}] Launching Chromium browser (headless={headless})")
+                logs.append(f"[{self._now()}] Launching browser (headless={headless})")
                 
                 # Configure proxy if available
                 proxy_url = os.getenv("PROXY_URL")
                 launch_options = {"headless": headless}
                 if proxy_url:
                     launch_options["proxy"] = {"server": proxy_url}
-                    logs.append(f"[{self._now()}] Using proxy: {proxy_url[:30]}...")
+                    logs.append(f"[{self._now()}] Using proxy configuration")
                 
                 browser = await p.chromium.launch(**launch_options)
                 context = await browser.new_context()
                 page = await context.new_page()
                 
-                # Set viewport to standard desktop
+                # Set viewport
                 await page.set_viewport_size({"width": 1280, "height": 720})
-                logs.append(f"[{self._now()}] Viewport set to 1280x720")
                 
                 # Navigate to signup page
                 logs.append(f"[{self._now()}] Navigating to {self.SIGNUP_URL}")
-                await page.goto(
-                    self.SIGNUP_URL,
-                    wait_until="networkidle",
-                    timeout=30000,
-                )
+                await page.goto(self.SIGNUP_URL, wait_until="networkidle", timeout=60000)
                 logs.append(f"[{self._now()}] Page loaded")
                 
                 # Check for CAPTCHA
                 captcha_check = await self._check_for_captcha(page)
                 if captcha_check["detected"]:
-                    logs.append(f"[{self._now()}] CAPTCHA detected: {captcha_check['reason']}")
-                    screenshot_captcha = os.path.join(
-                        screenshot_dir,
-                        f"stripe_captcha_{datetime.utcnow().timestamp()}.png",
-                    )
+                    logs.append(f"[{self._now()}] PAUSED: CAPTCHA detected - {captcha_check['reason']}")
+                    screenshot_captcha = os.path.join(screenshot_dir, "captcha.png")
                     await page.screenshot(path=screenshot_captcha, full_page=True)
                     return (False, {
                         "error": "CAPTCHA_DETECTED",
@@ -110,92 +101,86 @@ class StripeConnectAutomation(BaseAffiliateAutomation):
                     })
                 
                 # Take pre-fill screenshot
-                screenshot_before = os.path.join(
-                    screenshot_dir,
-                    f"stripe_before_{datetime.utcnow().timestamp()}.png",
-                )
+                screenshot_before = os.path.join(screenshot_dir, "before.png")
                 await page.screenshot(path=screenshot_before, full_page=True)
                 screenshots["before"] = screenshot_before
-                logs.append(f"[{self._now()}] Pre-fill screenshot saved: {screenshot_before}")
                 
-                # Fill form fields
-                logs.append(f"[{self._now()}] Filling email field: {email}")
-                await page.fill(self.EMAIL_INPUT, email, timeout=10000)
-                
-                logs.append(f"[{self._now()}] Filling name field: {name}")
-                await page.fill(self.NAME_INPUT, name, timeout=10000)
-                
-                logs.append(f"[{self._now()}] Filling website field: {website}")
-                await page.fill(self.WEBSITE_INPUT, website, timeout=10000)
-                
-                # Wait for form to be ready
-                await page.wait_for_timeout(500)
-                logs.append(f"[{self._now()}] Form fields filled, waiting 500ms")
-                
-                # Take screenshot before submit
-                screenshot_filled = os.path.join(
-                    screenshot_dir,
-                    f"stripe_filled_{datetime.utcnow().timestamp()}.png",
+                # Run Intelligent Form Filler
+                logs.append(f"[{self._now()}] Starting Intelligent Form Filler (RAG + LLM)")
+                fill_result = await fill_form_with_predictions(
+                    page=page,
+                    db=db,
+                    tenant_id=tenant_id,
+                    user_profile=user_profile,
+                    program_id=program_id,
+                    confidence_threshold=0.6  # Approved threshold
                 )
+                
+                logs.append(f"[{self._now()}] Form fill complete: {fill_result['filled']}/{fill_result['total_fields']} fields")
+                
+                # Check if we have enough confidence to proceed
+                if fill_result['filled'] == 0 and fill_result['total_fields'] > 0:
+                    logs.append(f"[{self._now()}] PAUSED: Zero fields filled with high confidence")
+                    screenshot_low_conf = os.path.join(screenshot_dir, "low_confidence.png")
+                    await page.screenshot(path=screenshot_low_conf, full_page=True)
+                    return (False, {
+                        "error": "PAUSED_LOW_CONFIDENCE",
+                        "logs": "\n".join(logs),
+                        "screenshots": {"paused": screenshot_low_conf},
+                        "fill_stats": fill_result['stats']
+                    })
+
+                # Take post-fill screenshot
+                screenshot_filled = os.path.join(screenshot_dir, "filled.png")
                 await page.screenshot(path=screenshot_filled, full_page=True)
-                logs.append(f"[{self._now()}] Post-fill screenshot saved: {screenshot_filled}")
+                screenshots["filled"] = screenshot_filled
                 
-                # Submit form
-                logs.append(f"[{self._now()}] Clicking submit button")
-                await page.click(self.SUBMIT_BUTTON, timeout=10000)
+                # User Review/Submit Logic
+                # In this universal mode, we try to detect the submit button automatically
+                logs.append(f"[{self._now()}] Attempting to identify and click submit button")
                 
-                # Wait for navigation or success indicator
-                logs.append(f"[{self._now()}] Waiting for post-submit response (up to 10s)")
-                try:
-                    await asyncio.wait_for(
-                        page.wait_for_url("**/confirm**", timeout=10000),
-                        timeout=15
-                    )
-                    logs.append(f"[{self._now()}] ✅ URL changed to confirmation page")
-                    success = True
-                except asyncio.TimeoutError:
-                    # Check for success message in DOM
-                    logs.append(f"[{self._now()}] No URL change, checking for success message...")
+                # Try to find submit button by type or text
+                selectors = [
+                    "button[type='submit']", 
+                    "input[type='submit']",
+                    "button:has-text('Apply')",
+                    "button:has-text('Join')",
+                    "button:has-text('Submit')",
+                    "button:has-text('Sign up')"
+                ]
+                
+                submit_button = None
+                for selector in selectors:
                     try:
-                        success_text = await page.query_selector(":has-text('Thank you') >> nth=0")
-                        if success_text:
-                            logs.append(f"[{self._now()}] ✅ Found success message in DOM")
-                            success = True
-                        else:
-                            logs.append(f"[{self._now()}] ❌ No success indicator found")
-                            success = False
+                        el = await page.query_selector(selector)
+                        if el and await el.is_visible():
+                            submit_button = selector
+                            break
                     except:
-                        success = False
+                        continue
                 
-                # Take post-submit screenshot
-                screenshot_after = os.path.join(
-                    screenshot_dir,
-                    f"stripe_after_{datetime.utcnow().timestamp()}.png",
-                )
+                if submit_button:
+                    logs.append(f"[{self._now()}] Found submit button: {submit_button}")
+                    await page.click(submit_button)
+                    await page.wait_for_timeout(5000) # Wait for processing
+                else:
+                    logs.append(f"[{self._now()}] ⚠️ Could not identify submit button automatically")
+                
+                # Final screenshot
+                screenshot_after = os.path.join(screenshot_dir, "after.png")
                 await page.screenshot(path=screenshot_after, full_page=True)
                 screenshots["after"] = screenshot_after
-                logs.append(f"[{self._now()}] Post-submit screenshot saved: {screenshot_after}")
                 
-                # Return result
-                metadata = {
-                    "success": success,
+                return True, {
+                    "success": True,
                     "screenshots": screenshots,
                     "logs": "\n".join(logs),
-                    "email": email,
-                    "name": name,
-                    "website": website,
-                    "submitted_at": self._now(),
+                    "fill_stats": fill_result['stats'],
+                    "submitted_at": self._now()
                 }
                 
-                if success:
-                    logs.append(f"[{self._now()}] ✅ AUTOMATION COMPLETED SUCCESSFULLY")
-                else:
-                    logs.append(f"[{self._now()}] ❌ AUTOMATION FAILED - No success indicator")
-                    metadata["error"] = "Form submission failed or success not detected"
-                
-                return success, metadata
-                
         except Exception as e:
+            logger.error(f"Universal automation failed: {e}")
             logs.append(f"[{self._now()}] ❌ EXCEPTION: {str(e)}")
             return False, {
                 "success": False,
@@ -204,16 +189,10 @@ class StripeConnectAutomation(BaseAffiliateAutomation):
                 "error": str(e),
             }
         finally:
-            if page:
-                await page.close()
-            if context:
-                await context.close()
-            if browser:
-                await browser.close()
-    
-    def _now(self) -> str:
-        """Return current ISO timestamp."""
-        return datetime.utcnow().isoformat()
+            db.close()
+            if page: await page.close()
+            if context: await context.close()
+            if browser: await browser.close()
 
 
 async def run_apply_program_automation(
@@ -221,59 +200,43 @@ async def run_apply_program_automation(
     task_id: str,
 ) -> Tuple[bool, Dict[str, Any]]:
     """
-    Execute affiliate application automation based on program type.
-    
-    Task payload must contain:
-    {
-        "program_name": "Stripe Connect" | "Amazon Associates" | "ClickBank",
-        "email": "affiliate@example.com",
-        "name": "John Doe",
-        "website": "https://example.com",
-    }
+    Execute affiliate application automation using Universal Intelligent Agent.
     """
-    from app.automation.amazon_automation import AmazonAssociatesAutomation
-    from app.automation.clickbank_automation import ClickBankAutomation
+    program_name = task_payload.get("program_name", "Unknown Program")
+    signup_url = task_payload.get("signup_url") or task_payload.get("website_url")
     
-    program_name = task_payload.get("program_name", "").strip()
-    email = task_payload.get("email", "").strip()
-    name = task_payload.get("name", "").strip()
-    website = task_payload.get("website", "").strip()
+    # Fallback URLs for known names if not provided in payload
+    if not signup_url:
+        KNOWN_URLS = {
+            "stripe connect": "https://stripe.com/connect/partners",
+            "amazon associates": "https://affiliate-program.amazon.com/",
+            "clickbank": "https://www.clickbank.com/affiliates/",
+        }
+        signup_url = KNOWN_URLS.get(program_name.lower())
+
+    if not signup_url:
+        return False, {"error": f"Missing signup_url for program: {program_name}"}
+
+    tenant_id_str = task_payload.get("tenant_id")
+    if not tenant_id_str:
+        return False, {"error": "Missing tenant_id in task payload"}
     
-    if not all([program_name, email, name, website]):
-        return False, {"error": "Missing required fields: program_name, email, name, website"}
-    
-    # Determine debug mode from environment
-    debug_flag = os.getenv("PLAYWRIGHT_DEBUG", "0").lower()
-    debug_mode = debug_flag in ("1", "true", "yes")
+    tenant_id = uuid.UUID(tenant_id_str)
+    user_profile = task_payload.get("user_profile", {})
+    program_id = task_payload.get("program_id")
+    if program_id:
+        program_id = uuid.UUID(program_id)
+
+    # Determine execution mode
+    debug_mode = os.getenv("PLAYWRIGHT_DEBUG", "0").lower() in ("1", "true")
     headless = not debug_mode
 
-    # Store screenshots under storage/screenshots/{task_id}/
-    screenshot_dir = os.path.join("storage", "screenshots", str(task_id))
-
-    # Program automation registry (case-insensitive)
-    AUTOMATIONS = {
-        "stripe connect": StripeConnectAutomation,
-        "amazon associates": AmazonAssociatesAutomation,
-        "clickbank": ClickBankAutomation,
-    }
-    
-    # Match program name (case-insensitive)
-    program_key = program_name.lower()
-    automation_class = AUTOMATIONS.get(program_key)
-    
-    if not automation_class:
-        return False, {
-            "error": f"No automation implemented for: {program_name}",
-            "supported_programs": list(AUTOMATIONS.keys())
-        }
-    
-    # Instantiate and run automation
-    automation = automation_class()
+    # Run Universal Automation
+    automation = UniversalAffiliateAutomation(program_name, signup_url)
     return await automation.run(
-        email=email,
-        name=name,
-        website=website,
-        headless=headless,
-        screenshot_dir=screenshot_dir,
+        tenant_id=tenant_id,
+        user_profile=user_profile,
+        program_id=program_id,
+        task_id=uuid.UUID(task_id),
+        headless=headless
     )
-

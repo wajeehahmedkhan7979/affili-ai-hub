@@ -3,7 +3,7 @@ Task metrics model for SLA tracking.
 """
 
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Float, Integer, Index
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import UUID
 from datetime import datetime
 import uuid
 
@@ -18,9 +18,9 @@ class TaskMetrics(Base):
         Index("ix_task_metrics_tenant_created", "tenant_id", "created_at"),
     )
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
-    task_id = Column(UUID(as_uuid=True), ForeignKey("tasks.id"), index=True, nullable=False)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
+    task_id = Column(UUID(), ForeignKey("tasks.id"), index=True, nullable=False)
     
     # Task details
     program_name = Column(String(255), index=True, nullable=True)

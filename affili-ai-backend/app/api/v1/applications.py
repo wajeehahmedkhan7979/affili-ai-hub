@@ -62,6 +62,7 @@ def create_application(app_in: ApplicationCreate, db: Session = Depends(get_db))
     application = Application(
         program_id=app_in.program_id,
         user_email=str(app_in.user_email),
+        tenant_id=uuid.UUID(get_tenant_id()),
         user_data=json.dumps(user_data_obj),
     )
     db.add(application)

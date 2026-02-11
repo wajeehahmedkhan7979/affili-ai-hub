@@ -2,20 +2,57 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Copy, Terminal, Apple, MonitorDot, HelpCircle, Wifi, WifiOff } from 'lucide-react';
-import { useState } from 'react';
+import { CheckCircle, Copy, Terminal, Apple, MonitorDot, HelpCircle, Wifi, WifiOff, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api';
 
 export default function AgentSetup() {
   const { toast } = useToast();
-  const [agentConnected] = useState(true);
+  const [agentConnected, setAgentConnected] = useState(false);
+  const [loading, setLoading] = useState(true);
   
-  const dockerCommand = `docker run -d \\
-  -e API_BASE_URL=https://api.affili-ai.com \\
-  -e AGENT_API_KEY=your-api-key-here \\
+  useEffect(() => {
+    async function checkStatus() {
+      try {
+        const status = await api.getAgentStatus();
+        setAgentConnected(status.connected);
+      } catch (error) {
+        console.error('Failed to check agent status:', error);
+        setAgentConnected(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    checkStatus();
+    const interval = setInterval(checkStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const backendUrl = window.location.hostname === 'localhost' 
+    ? 'http://host.docker.internal:8000' 
+    : `http://${window.location.hostname}:8000`;
+
+  const agentKey = 'sk_live_PLACEHOLDER_FOR_DEMO_PURPOSES_ONLY';
+  
+  // PowerShell version (for Windows)
+  const dockerCommandPS = `docker run -d \`
+  -e BACKEND_URL=${backendUrl} \`
+  -e AGENT_API_KEY=${agentKey} \`
+  --name affili-agent \`
+  affili-ai-worker:latest`;
+
+  // Bash version (for Linux/Mac)
+  const dockerCommandBash = `docker run -d \\
+  -e BACKEND_URL=${backendUrl} \\
+  -e AGENT_API_KEY=${agentKey} \\
   --name affili-agent \\
-  affili-ai/agent:latest`;
+  affili-ai-worker:latest`;
+  
+  const [selectedShell, setSelectedShell] = useState<'powershell' | 'bash'>('powershell');
+  const dockerCommand = selectedShell === 'powershell' ? dockerCommandPS : dockerCommandBash;
 
   const copyCommand = () => {
     navigator.clipboard.writeText(dockerCommand);
@@ -31,14 +68,18 @@ export default function AgentSetup() {
         {/* Status Card */}
         <Card className={cn(
           "border-2",
+          loading ? "border-muted bg-muted/5" :
           agentConnected ? "border-green-500/50 bg-green-500/5" : "border-destructive/50 bg-destructive/5"
         )}>
           <CardContent className="flex items-center gap-4 py-6">
             <div className={cn(
               "flex h-12 w-12 items-center justify-center rounded-full",
+              loading ? "bg-muted" :
               agentConnected ? "bg-green-500/10" : "bg-destructive/10"
             )}>
-              {agentConnected ? (
+              {loading ? (
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              ) : agentConnected ? (
                 <Wifi className="h-6 w-6 text-green-500" />
               ) : (
                 <WifiOff className="h-6 w-6 text-destructive" />
@@ -46,17 +87,20 @@ export default function AgentSetup() {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-foreground">
-                Agent Status: {agentConnected ? 'Connected' : 'Disconnected'}
+                Agent Status: {loading ? 'Checking...' : agentConnected ? 'Connected' : 'Disconnected'}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {agentConnected 
+                {loading ? 'Verifying connection to your local agent...' 
+                  : agentConnected 
                   ? 'Your local agent is running and connected successfully.' 
                   : 'Your local agent is not connected. Follow the steps below to set it up.'}
               </p>
             </div>
-            <Badge variant={agentConnected ? 'default' : 'destructive'}>
-              {agentConnected ? 'Online' : 'Offline'}
-            </Badge>
+            {!loading && (
+              <Badge variant={agentConnected ? 'default' : 'destructive'}>
+                {agentConnected ? 'Online' : 'Offline'}
+              </Badge>
+            )}
           </CardContent>
         </Card>
 
@@ -106,18 +150,48 @@ export default function AgentSetup() {
                 <p className="text-sm text-muted-foreground">
                   Open your terminal and run the following command:
                 </p>
-                <div className="relative">
-                  <pre className="rounded-lg bg-secondary p-4 text-sm text-secondary-foreground overflow-x-auto font-mono">
-                    {dockerCommand}
-                  </pre>
+                <div className="flex gap-2 mb-2">
                   <Button
-                    size="icon"
-                    variant="ghost"
-                    className="absolute right-2 top-2"
-                    onClick={copyCommand}
+                    size="sm"
+                    variant={selectedShell === 'powershell' ? 'default' : 'outline'}
+                    onClick={() => setSelectedShell('powershell')}
                   >
-                    <Copy className="h-4 w-4" />
+                    <Terminal className="h-4 w-4 mr-2" />
+                    PowerShell
                   </Button>
+                  <Button
+                    size="sm"
+                    variant={selectedShell === 'bash' ? 'default' : 'outline'}
+                    onClick={() => setSelectedShell('bash')}
+                  >
+                    <Terminal className="h-4 w-4 mr-2" />
+                    Bash
+                  </Button>
+                </div>
+                <div className="relative">
+                  {agentConnected ? (
+                    <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-6 text-center">
+                       <h3 className="text-lg font-medium text-green-600 mb-2">✅ Agent Connected via Docker</h3>
+                       <p className="text-sm text-green-600/80">
+                         Your agent (docker-worker) is running and ready to process tasks.
+                         <br/>You don't need to run any manual commands.
+                       </p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <pre className="rounded-lg bg-secondary p-4 text-sm text-secondary-foreground overflow-x-auto font-mono">
+                        {dockerCommand}
+                      </pre>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="absolute right-2 top-2"
+                        onClick={copyCommand}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

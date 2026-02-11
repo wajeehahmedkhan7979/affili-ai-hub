@@ -15,11 +15,15 @@ from app.core.security import IPAllowlistMiddleware
 from app.db.session import get_engine_instance
 from app.db.base import Base
 
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
+# Phase 11: Structured logging
+from app.core import logging as app_logging
+app_logging.configure_logging()
+logger = app_logging.logger
 
-limiter = Limiter(key_func=get_remote_address)
+# Phase 10: Tenant-aware rate limiting
+from app.core.rate_limit import limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 from app.api.v1 import (
     health_router,
     programs_router,
@@ -36,7 +40,16 @@ from app.api.v1 import (
     observability_router,
     policies_router,
     retention_router,
+    dashboards_router,
+    feedback_router,
+    metrics_router,
+    governance_router,
+    operator_router,
+    agents_router,
 )
+
+# Import Phase 11 health checks
+from app.api.endpoints.health import router as health_check_router
 
 settings = get_settings()
 
@@ -78,6 +91,11 @@ app = FastAPI(
 # Add Middleware
 app.add_middleware(CorrelationIdMiddleware)
 
+# Phase 11: Metrics Security
+if settings.METRICS_ENABLED:
+    from app.core.middleware.security import MetricsSecurityMiddleware
+    app.add_middleware(MetricsSecurityMiddleware)
+
 # IP Allowlist Hardening (Configurable via settings.ALLOWED_IPS in production)
 app.add_middleware(IPAllowlistMiddleware, allowlist=getattr(settings, "ALLOWED_IPS", []))
 
@@ -101,6 +119,22 @@ app.mount("/storage", StaticFiles(directory=storage_path), name="storage")
 
 
 # Include routers
+# Phase 11: Health checks (Kubernetes probes)
+app.include_router(health_check_router)
+# app.include_router(health_check_router) # Original line
+
+# Phase 11: Prometheus metrics endpoint
+from prometheus_client import make_asgi_app
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
+
+from app.api.endpoints import health
+app.include_router(health.router, prefix="/health", tags=["health"])
+# Phase 14: UX & Observability
+from app.api.endpoints import analytics
+from app.api.endpoints import websockets
+app.include_router(websockets.router, tags=["websockets"])
+app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(programs_router, prefix="/api/v1")
 app.include_router(applications_router, prefix="/api/v1")
@@ -117,8 +151,19 @@ app.include_router(observability_router, prefix="/api/v1") # Added observability
 app.include_router(policies_router, prefix="/api/v1") # Added policies_router
 app.include_router(retention_router, prefix="/api/v1") # Added retention_router
 
-# Import and add agents router
-from app.api.v1.agents import router as agents_router
+# Import and add RAG router (Phase H)
+from app.api.v1.rag import router as rag_router
+app.include_router(rag_router, prefix="/api/v1") # Added rag_router
+
+
+# Add AI automation routers (Phases O-R)
+app.include_router(dashboards_router, prefix="/api/v1") # Dashboard metrics
+app.include_router(feedback_router, prefix="/api/v1") # Human feedback loop
+app.include_router(metrics_router, prefix="/api/v1") # Prometheus metrics
+
+# Add operational control routers (Phase S-T)
+app.include_router(governance_router, prefix="/api/v1") # Kill-switch + cost control
+app.include_router(operator_router, prefix="/api/v1") # Human intervention
 app.include_router(agents_router, prefix="/api/v1")
 
 

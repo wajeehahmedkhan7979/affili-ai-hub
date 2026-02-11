@@ -10,12 +10,14 @@ class TaskBase(BaseModel):
     """Base task schema."""
     task_type: str
     payload: Optional[Dict[str, Any]] = None
+    program_id: Optional[uuid.UUID] = None
 
 
 class TaskCreate(BaseModel):
     """Schema for creating a new task."""
     task_type: str  # Will be validated against TaskType enum
     payload: Optional[Dict[str, Any]] = None
+    program_id: Optional[uuid.UUID] = None
     agent_pool: Optional[str] = "default"  # Pool assignment for task
     logs: Optional[str] = None
     screenshot_url: Optional[str] = None
@@ -29,6 +31,8 @@ class TaskUpdate(BaseModel):
     logs: Optional[str] = None
     screenshot_url: Optional[str] = None
     error_message: Optional[str] = None
+    operator_confidence: Optional[int] = None
+    feedback_json: Optional[Dict[str, Any]] = None
 
 
 class TaskClaimRequest(BaseModel):
@@ -54,6 +58,8 @@ class TaskResponse(TaskBase):
     logs: Optional[str] = None
     screenshot_url: Optional[str] = None
     error_message: Optional[str] = None
+    operator_confidence: Optional[int] = None
+    feedback_json: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: datetime
     claimed_at: Optional[datetime] = None

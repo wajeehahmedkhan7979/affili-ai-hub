@@ -3,7 +3,7 @@ Usage metrics model for billing and analytics.
 """
 
 from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey, Date, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import UUID
 from datetime import datetime
 import uuid
 
@@ -16,8 +16,8 @@ class TenantUsage(Base):
     """
     __tablename__ = "tenant_usage"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
 
     date = Column(Date, nullable=False, index=True)
 

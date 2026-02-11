@@ -63,7 +63,7 @@ npm run dev
 
 | Service            | URL                         | Purpose              |
 | ------------------ | --------------------------- | -------------------- |
-| Frontend App       | http://127.0.0.1:5173       | Web interface        |
+| Frontend App       | http://172.19.176.1:8080/   | Web interface        |
 | Backend API        | http://127.0.0.1:8000       | REST API server      |
 | API Docs (Swagger) | http://127.0.0.1:8000/docs  | Interactive API docs |
 | ReDoc              | http://127.0.0.1:8000/redoc | Alternative API docs |
@@ -382,6 +382,73 @@ Edit Code → Hot Reload → Test → Debug → Repeat
 
 ---
 
+## 🔐 Authentication & Security
+
+The platform follows a secure Multi-Tenant JWT-based architecture:
+
+### Default Admin Credentials (E2E Verified)
+
+- **Tenant ID**: `00000000-0000-0000-0000-000000000000`
+- **Email**: `admin@example.com`
+- **Password**: `password` (seeded in backend)
+
+### RBAC Roles
+
+| Role            | Access Level    | Description                                                      |
+| --------------- | --------------- | ---------------------------------------------------------------- |
+| **OWNER/ADMIN** | Full Access     | Can manage users, view all metrics, and use the LLM kill-switch. |
+| **OPERATOR**    | Task Operations | Can claim and execute tasks, provide human feedback.             |
+| **VIEWER**      | Read-Only       | Restricted to dashboards and task viewing.                       |
+
+---
+
+## 🛠️ Infrastructure Maintenance
+
+### Critical Fixes Applied (Production Readiness)
+
+1. **Password Hashing**: Downgraded `bcrypt` to `3.2.0` to ensure `passlib` compatibility on modern Python runtimes (3.12+).
+2. **Operational Tables**: The following tables are now initialized for governance and auditing:
+   - `llm_usage_log`: AI cost and token tracking ledger.
+   - `tenant_runtime_flags`: Emergency AI kill-switch persistence.
+   - `operator_action_log`: Transparent human intervention audit trail.
+
+### Manual Table Creation
+
+If operational tables are missing, run the following in the backend container/root:
+
+```bash
+python scripts/create_operational_tables.py
+```
+
+---
+
+## 📊 Governance & Observability
+
+### Dashboard Widgets (Integrated)
+
+- **System Health**: Real-time status from `/api/v1/health`.
+- **SLA Metrics**: MTTR (Mean Time to Resolution) and Human Intervention rates.
+- **AI Cost Control**: Monthly token/USD consumption tracking.
+
+### Verification Suite
+
+Run the full E2E demo script to validate discovery and auth:
+
+```bash
+# From affili-ai-backend root
+python scripts/verify_full_system.py
+```
+
+---
+
+## 🚀 Deployment Notes
+
+- **PostgreSQL**: Production ready with `pgvector` for RAG.
+- **Frontend**: Vite-built React app with `AuthContext` persistence.
+- **API Base**: Managed via `.env` (`VITE_API_BASE_URL` and `API_BASE_URL`).
+
+---
+
 ## 📚 Documentation Files
 
 - **Backend**
@@ -489,6 +556,20 @@ npm run dev
 
 ---
 
-**Project Status:** ✅ **FULLY OPERATIONAL**  
-**Last Updated:** January 28, 2026  
-**Ready For:** Development & Testing
+**Project Status:** ✅ **FULLY INTEGRATED & VERIFIED**  
+**Last Updated:** February 9, 2026  
+**Ready For:** Production Pilot & AI Automation
+
+---
+
+## 🚀 Pilot Operations
+
+For the 30-day production pilot (v1.1), please adhere to the following:
+
+- **Operations Strategy**: [PILOT_OPERATIONS_STRATEGY.md](file:///d:/PROJECTS-REPOS/AFFILIATE-PROJ/affili-ai-hub/PILOT_OPERATIONS_STRATEGY.md)
+- **Pilot Checklist**: [PILOT_CHECKLIST.md](file:///d:/PROJECTS-REPOS/AFFILIATE-PROJ/affili-ai-hub/PILOT_CHECKLIST.md)
+- **Post-Handoff Status**: ✅ **OPERATIONS MODE ACTIVE**
+
+```
+
+```

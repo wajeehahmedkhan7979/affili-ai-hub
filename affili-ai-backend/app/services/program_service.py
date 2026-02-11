@@ -7,6 +7,7 @@ from typing import Optional, List
 import uuid
 
 from app.models.program import Program
+from app.core.tenant import get_tenant_id
 
 
 def get_program(db: Session, program_id: uuid.UUID) -> Optional[Program]:
@@ -31,7 +32,9 @@ def list_programs(
     source: Optional[str] = None
 ) -> List[Program]:
     """List programs with optional filtering."""
-    query = db.query(Program)
+    tenant_id_str = get_tenant_id()
+    tenant_id = uuid.UUID(tenant_id_str)
+    query = db.query(Program).filter(Program.tenant_id == tenant_id)
     
     if source:
         query = query.filter(Program.source == source)
@@ -66,6 +69,7 @@ def create_discovered_program(
         return existing
     
     program = Program(
+        tenant_id=uuid.UUID(get_tenant_id()),
         name=name,
         base_url=base_url,
         signup_url=signup_url,
@@ -93,6 +97,7 @@ def create_manual_program(
 ) -> Program:
     """Create a manually added program."""
     program = Program(
+        tenant_id=uuid.UUID(get_tenant_id()),
         name=name,
         affiliate_url=affiliate_url,
         description=description,

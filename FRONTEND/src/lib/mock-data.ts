@@ -11,6 +11,8 @@ export interface Program {
   logo?: string;
   description?: string;
   commission?: string;
+  source?: 'discovered' | 'manual';
+  confidence_score?: number;
 }
 
 export interface Application {
@@ -25,11 +27,22 @@ export interface Application {
 
 export interface Task {
   id: string;
-  type: 'APPLY_PROGRAM' | 'DISCOVER_PROGRAMS' | 'PUBLISH_CONTENT';
-  payload: Record<string, string>;
-  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'PAUSED_FOR_CAPTCHA';
+  task_type: string;
+  status: string;
+  payload: any;
+  result?: any;
+  agent_id?: string | null;
+  retry_count: number;
+  max_retries: number;
+  logs?: string | string[] | null;
+  screenshot_url?: string | null;
+  error_message?: string | null;
   created_at: string;
-  logs: string[];
+  updated_at?: string;
+  claimed_at?: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+  last_heartbeat?: string | null;
 }
 
 export interface ResponsePoolItem {
@@ -134,27 +147,33 @@ export const mockApplications: Application[] = [
 export const mockTasks: Task[] = [
   {
     id: 'task-001',
-    type: 'APPLY_PROGRAM',
+    task_type: 'APPLY_PROGRAM',
     payload: { program_id: 'prog-001', profile_id: 'profile-001' },
     status: 'PENDING',
     created_at: '2026-01-22T09:00:00Z',
     logs: [],
+    retry_count: 0,
+    max_retries: 3
   },
   {
     id: 'task-002',
-    type: 'DISCOVER_PROGRAMS',
+    task_type: 'DISCOVER_PROGRAM',
     payload: { keyword: 'AI tools', network: 'ClickBank' },
     status: 'RUNNING',
     created_at: '2026-01-22T08:30:00Z',
     logs: ['Started discovery...', 'Found 12 programs matching criteria'],
+    retry_count: 0,
+    max_retries: 3
   },
   {
     id: 'task-003',
-    type: 'APPLY_PROGRAM',
+    task_type: 'APPLY_PROGRAM',
     payload: { program_id: 'prog-004', profile_id: 'profile-001' },
     status: 'PAUSED_FOR_CAPTCHA',
     created_at: '2026-01-22T07:00:00Z',
     logs: ['Application started', 'Captcha detected - waiting for user input'],
+    retry_count: 0,
+    max_retries: 3
   },
 ];
 

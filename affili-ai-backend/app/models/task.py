@@ -3,7 +3,8 @@ Task ORM model - represents work items for agents to execute.
 """
 
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Text, Enum as SQLEnum, Integer, Index, JSON
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
+from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
 import enum
@@ -39,8 +40,9 @@ class Task(Base):
         Index("ix_tasks_pool_status", "agent_pool", "status"),
     )
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
+    # program_id = Column(UUID(), ForeignKey("programs.id"), nullable=True, index=True) # Removed in v1.1
     task_type = Column(SQLEnum(TaskType), nullable=False, index=True)
     status = Column(SQLEnum(TaskStatus), default=TaskStatus.PENDING, index=True)
     # Use JSON with JSONB variant for Postgres performance
@@ -59,6 +61,10 @@ class Task(Base):
     started_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
     last_heartbeat = Column(DateTime, nullable=True)
+    
+    # Phase 6.2: Trust & Feedback
+    # operator_confidence = Column(Integer, nullable=True) # 1-5 star rating
+    # feedback_json = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     
     def __repr__(self) -> str:
         return f"<Task(id={self.id}, type={self.task_type}, status={self.status})>"

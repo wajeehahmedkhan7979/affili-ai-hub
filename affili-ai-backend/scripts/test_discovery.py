@@ -29,7 +29,7 @@ async def main():
     print(f"Seed URL: {seed_url}")
     print(f"Running discovery...\n")
     
-    agent = DiscoveryAgent(headless=True, timeout=30000)
+    agent = DiscoveryAgent(headless=True, timeout=60000)
     success, discovered = await agent.discover_programs(seed_url)
     
     print(f"\n{'='*60}")

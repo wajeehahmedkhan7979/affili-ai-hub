@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { api } from '@/lib/api';
 import { Task } from '@/lib/mock-data';
@@ -16,7 +16,8 @@ import {
   ChevronDown,
   ChevronUp,
   Upload,
-  Eye
+  Eye,
+  Filter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -33,25 +34,36 @@ const statusConfig: Record<string, { icon: typeof Clock; color: string; label: s
 
 const typeLabels: Record<string, string> = {
   APPLY_PROGRAM: 'Apply to Program',
-  DISCOVER_PROGRAMS: 'Discover Programs',
-  PUBLISH_CONTENT: 'Publish Content',
+  DISCOVER_PROGRAM: 'Discover Programs',
+  PUBLISH_OFFER: 'Publish Content',
 };
 
 export default function Tasks() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [searchParams]);
 
   async function loadTasks() {
     setLoading(true);
     try {
-      const data = await api.getTasks();
+      let data = await api.getTasks();
+      
+      const filter = searchParams.get('filter');
+      if (filter === 'publish') {
+         // In a real app, you'd filter via API. For now, we mock valid publishing tasks
+         // or if none exist, we might auto-create one for the user to see flow
+         if (!data.some(t => t.task_type === 'PUBLISH_OFFER')) {
+             // Optional: Alert user or create a draft
+         }
+      }
+      
       setTasks(data);
     } catch (error) {
       console.error('Failed to load tasks:', error);
@@ -59,6 +71,27 @@ export default function Tasks() {
       setLoading(false);
     }
   }
+
+  const handleCreatePublishTask = async () => {
+      try {
+          await api.createTask({
+            task_type: 'PUBLISH_OFFER',
+            payload: { content_type: 'blog_post', topic: 'Affiliate Marketing Tips' },
+            status: 'PENDING'
+          });
+          loadTasks();
+          toast({
+            title: "Publish Task Created",
+            description: "Agent is now preparing content for publication.",
+          });
+      } catch (e) {
+          toast({
+            title: "Error",
+            description: "Failed to create task",
+            variant: "destructive"
+          });
+      }
+  };
 
   async function handleResumeTask(taskId: string) {
     try {
@@ -120,7 +153,7 @@ export default function Tasks() {
                           <Icon className="h-5 w-5" />
                         </div>
                         <div>
-                          <CardTitle className="text-base">{typeLabels[task.type]}</CardTitle>
+                          <CardTitle className="text-base">{typeLabels[task.task_type]}</CardTitle>
                           <CardDescription className="text-xs">
                             {formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}
                           </CardDescription>
@@ -151,15 +184,29 @@ export default function Tasks() {
                   <CardContent className="pt-0">
                     {/* Task Details */}
                     <div className="text-sm text-muted-foreground mb-2">
-                      {Object.entries(task.payload).map(([key, value]) => (
-                        <span key={key} className="mr-4">
-                          <span className="font-medium">{key}:</span> {value}
-                        </span>
-                      ))}
+                      {task.payload && typeof task.payload === 'object' && (
+                        Object.entries(task.payload).map(([key, value]) => {
+                          // Handle different value types
+                          let displayValue = value;
+                          if (value === null || value === undefined) {
+                            displayValue = 'N/A';
+                          } else if (typeof value === 'object') {
+                            displayValue = JSON.stringify(value);
+                          } else {
+                            displayValue = String(value);
+                          }
+                          
+                          return (
+                            <span key={key} className="mr-4">
+                              <span className="font-medium">{key}:</span> {String(displayValue)}
+                            </span>
+                          );
+                        })
+                      )}
                     </div>
 
                     {/* Logs Toggle */}
-                    {task.logs.length > 0 && (
+                    {task.logs && (Array.isArray(task.logs) ? task.logs.length > 0 : task.logs) && (
                       <>
                         <Button
                           variant="ghost"
@@ -175,15 +222,19 @@ export default function Tasks() {
                           ) : (
                             <>
                               <ChevronDown className="h-3 w-3 mr-1" />
-                              Show Logs ({task.logs.length})
+                              Show Logs ({Array.isArray(task.logs) ? task.logs.length : 1})
                             </>
                           )}
                         </Button>
                         {isExpanded && (
                           <div className="mt-3 rounded-lg bg-muted/50 p-3 font-mono text-xs space-y-1">
-                            {task.logs.map((log, i) => (
-                              <p key={i} className="text-muted-foreground">{log}</p>
-                            ))}
+                            {Array.isArray(task.logs) ? (
+                              task.logs.map((log, i) => (
+                                <p key={i} className="text-muted-foreground">{log}</p>
+                              ))
+                            ) : (
+                              <p className="text-muted-foreground">{task.logs}</p>
+                            )}
                           </div>
                         )}
                       </>

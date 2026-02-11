@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   # PostgreSQL database
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     container_name: affili-ai-postgres
     environment:
       POSTGRES_USER: postgres
@@ -19,19 +17,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - affili-ai-network
 
   # FastAPI backend
   backend:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: affili-ai-backend:latest
     container_name: affili-ai-backend
+    env_file: .env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/affili_ai_db
-      API_BASE_URL: http://localhost:8000
-      SECRET_KEY: your-secret-key-change-in-production
-      ENCRYPTION_KEY: your-32-byte-encryption-key
-      AGENT_API_KEY: agent-secret-key
-      DEBUG: "true"
-      ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:5173,http://localhost:8000"
+      API_BASE_URL: http://backend:8000
     ports:
       - "8000:8000"
     depends_on:
@@ -39,11 +38,32 @@ services:
         condition: service_healthy
     volumes:
       - ./app:/app/app
+      - ./scripts:/app/scripts
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - affili-ai-network
+
+  # Playwright Worker (task executor)
+  worker:
+    build:
+      context: .
+      dockerfile: agent/Dockerfile
+    image: affili-ai-worker:latest
+    container_name: affili-ai-worker
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/affili_ai_db?host=postgres
+      AGENT_CLIENT_ID: docker-worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - affili-ai-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
 
 networks:
-  default:
-    name: affili-ai-network
+  affili-ai-network:
+    driver: bridge

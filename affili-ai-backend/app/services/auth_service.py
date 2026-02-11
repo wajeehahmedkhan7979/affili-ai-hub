@@ -7,10 +7,12 @@ from jose import jwt
 from passlib.context import CryptContext
 import uuid
 
-# Configuration (In production, load from settings/env)
-SECRET_KEY = "DEV_SECRET_KEY_CHANGE_IN_PROD" # Should be from settings
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from app.core.config import settings
+
+# Configuration loaded from settings
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

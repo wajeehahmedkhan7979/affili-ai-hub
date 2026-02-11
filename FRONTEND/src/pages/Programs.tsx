@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { api } from '@/lib/api';
 import { Program } from '@/lib/mock-data';
@@ -34,10 +35,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { ApplicationModal } from '@/components/programs/ApplicationModal';
+import { DiscoverModal } from '@/components/programs/DiscoverModal';
+import { ProgramDetailsModal } from '@/components/programs/ProgramDetailsModal';
+import { BulkApplyModal } from '@/components/programs/BulkApplyModal';
 import { formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 const statusColors: Record<string, string> = {
   Discovered: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
@@ -50,6 +65,8 @@ const networks = ['All Networks', 'ClickBank', 'ShareASale', 'CJ Affiliate', 'Im
 const statuses = ['All Statuses', 'Discovered', 'Applied', 'Approved', 'Rejected'];
 
 export default function Programs() {
+  const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -57,6 +74,17 @@ export default function Programs() {
   const [status, setStatus] = useState('All Statuses');
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [showDiscoverModal, setShowDiscoverModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showBulkApplyModal, setShowBulkApplyModal] = useState(false);
+  const [programToDelete, setProgramToDelete] = useState<Program | null>(null);
+
+  useEffect(() => {
+    // Check for action=discover in URL
+    if (searchParams.get('action') === 'discover') {
+      setShowDiscoverModal(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     loadPrograms();
@@ -84,6 +112,49 @@ export default function Programs() {
     setShowApplicationModal(true);
   };
 
+  const handleViewDetails = (program: Program) => {
+    setSelectedProgram(program);
+    setShowDetailsModal(true);
+  };
+
+  const handleAddToChannel = (program: Program) => {
+    toast({
+      title: "Added to Channel",
+      description: `${program.name} has been added to your channel.`,
+    });
+  };
+
+  const handleRemove = (program: Program) => {
+    setProgramToDelete(program);
+  };
+
+  const confirmDelete = async () => {
+    if (!programToDelete) return;
+    
+    try {
+      // Call API to delete program
+      await api.deleteProgram(programToDelete.id);
+      
+      // Remove from local state on success
+      setPrograms(programs.filter(p => p.id !== programToDelete.id));
+      
+      toast({
+        title: "Program Removed",
+        description: `${programToDelete.name} has been removed.`,
+      });
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      const errorMsg = error?.message || 'Failed to remove program. Please try again.';
+      toast({
+        title: "Error",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    } finally {
+      setProgramToDelete(null);
+    }
+  };
+
   return (
     <AppLayout title="Programs">
       <div className="space-y-6">
@@ -94,10 +165,20 @@ export default function Programs() {
               Manage discovered affiliate programs and track applications
             </p>
           </div>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Discover New
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              className="gap-2" 
+              onClick={() => setShowBulkApplyModal(true)}
+              disabled={programs.filter(p => p.status === 'Discovered').length === 0}
+            >
+              Bulk Apply
+            </Button>
+            <Button className="gap-2" onClick={() => setShowDiscoverModal(true)}>
+              <Plus className="h-4 w-4" />
+              Discover New
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -156,14 +237,14 @@ export default function Programs() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell colSpan={6}>
+                    <TableCell colSpan={8}> {/* Corrected colSpan */}
                       <Skeleton className="h-12 w-full" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : programs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
                     No programs found. Try adjusting your filters or discover new programs.
                   </TableCell>
                 </TableRow>
@@ -235,9 +316,18 @@ export default function Programs() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>View Details</DropdownMenuItem>
-                            <DropdownMenuItem>Add to Channel</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Remove</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewDetails(program)}>
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAddToChannel(program)}>
+                              Add to Channel
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleRemove(program)}
+                            >
+                              Remove
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -248,14 +338,55 @@ export default function Programs() {
             </TableBody>
           </Table>
         </div>
-      </div>
 
-      {/* Application Modal */}
-      <ApplicationModal
-        program={selectedProgram}
-        open={showApplicationModal}
-        onOpenChange={setShowApplicationModal}
-      />
+        {/* Application Modal */}
+        <ApplicationModal
+          program={selectedProgram}
+          open={showApplicationModal}
+          onOpenChange={setShowApplicationModal}
+        />
+        
+        {/* Discover Modal */}
+        <DiscoverModal
+          open={showDiscoverModal}
+          onOpenChange={setShowDiscoverModal}
+          onSuccess={() => loadPrograms()}
+        />
+
+        {/* Bulk Apply Modal */}
+        <BulkApplyModal
+          open={showBulkApplyModal}
+          onOpenChange={setShowBulkApplyModal}
+          onSuccess={() => loadPrograms()}
+        />
+
+        {/* Details Modal */}
+        <ProgramDetailsModal
+          program={selectedProgram}
+          open={showDetailsModal}
+          onOpenChange={setShowDetailsModal}
+          onApply={handleApply}
+          onRemove={handleRemove}
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!programToDelete} onOpenChange={(open) => !open && setProgramToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove Program?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to remove "{programToDelete?.name}"? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Remove
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </AppLayout>
   );
 }

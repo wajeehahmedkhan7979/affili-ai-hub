@@ -11,19 +11,24 @@ from app.core.config import get_settings
 settings = get_settings()
 
 
-def get_engine():
+def get_engine(database_url: str = None):
     """Create and return database engine."""
-    database_url = settings.DATABASE_URL
+    if database_url is None:
+        database_url = settings.DATABASE_URL
     
+    # Block SQLite in production if enforced
+    is_sqlite = "sqlite" in database_url
+    if is_sqlite and getattr(settings, "ENVIRONMENT", "development") == "production":
+        raise RuntimeError("SQLite is strictly prohibited in PRODUCTION environment. Use a Postgres instance.")
+
     # Use in-memory SQLite for testing if URL contains sqlite
-    if "sqlite" in database_url:
+    if is_sqlite:
         return create_engine(
             database_url,
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
     else:
-        # PostgreSQL/Supabase
         # Ensure we use psycopg (v3) which is modern and handles async/sync well
         if database_url.startswith("postgresql://"):
             database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)

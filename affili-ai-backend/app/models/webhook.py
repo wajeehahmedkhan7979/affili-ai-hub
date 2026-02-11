@@ -2,7 +2,8 @@
 Webhook models for event streaming.
 """
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Text, Integer, JSON
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 import uuid
 
@@ -12,8 +13,8 @@ class WebhookConfig(Base):
     """Configuration for outbound webhooks."""
     __tablename__ = "webhook_configs"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
     url = Column(String(500), nullable=False)
     secret = Column(String(255), nullable=False) # For HMAC signing
     event_types = Column(JSON().with_variant(JSONB, "postgresql"), nullable=False) # e.g. ["task.completed", "task.failed"]
@@ -24,9 +25,9 @@ class WebhookDelivery(Base):
     """Log of webhook delivery attempts."""
     __tablename__ = "webhook_deliveries"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
-    config_id = Column(UUID(as_uuid=True), ForeignKey("webhook_configs.id"), nullable=False)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
+    config_id = Column(UUID(), ForeignKey("webhook_configs.id"), nullable=False)
     event_type = Column(String(50), nullable=False)
     payload = Column(JSON().with_variant(JSONB, "postgresql"), nullable=False)
     status_code = Column(Integer, nullable=True)

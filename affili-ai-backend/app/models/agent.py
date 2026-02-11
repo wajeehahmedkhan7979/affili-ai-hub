@@ -3,7 +3,7 @@ Agent model for reputation tracking.
 """
 
 from sqlalchemy import Column, String, DateTime, Integer, Float, ForeignKey, Index
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import UUID
 from datetime import datetime
 
 from app.db.base import Base
@@ -18,7 +18,7 @@ class Agent(Base):
     )
     
     id = Column(String(255), primary_key=True)  # agent_id
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id"), nullable=False, index=True)
     pool = Column(String(100), default="default", index=True)
     
     # Task counters

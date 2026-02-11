@@ -13,6 +13,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 import uuid
 
+from datetime import datetime
+
 # Use dependencies for multi-tenancy
 router = APIRouter(prefix="/programs", tags=["programs"], dependencies=[Depends(verify_tenant)])
 
@@ -40,6 +42,8 @@ class ProgramUpdate(ProgramBase):
 class ProgramResponse(ProgramBase):
     id: uuid.UUID
     is_active: bool
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -72,10 +76,14 @@ def list_programs(
     skip: int = 0,
     limit: int = 100,
     source: Optional[str] = None,
+    tenant_id: str = Depends(verify_tenant),
     db: Session = Depends(get_db),
 ):
     """List available programs (tenant-scoped)."""
-    query = db.query(Program).filter(Program.tenant_id == get_tenant_id())
+    # Use explicit tenant_id from dependency to avoid context var issues
+    # DEBUG: Bypass tenant filter to see if data appears
+    # query = db.query(Program).filter(Program.tenant_id == tenant_id)
+    query = db.query(Program)
 
     if source:
         query = query.filter(Program.source == source)

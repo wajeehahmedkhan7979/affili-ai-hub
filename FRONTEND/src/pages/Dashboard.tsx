@@ -17,17 +17,26 @@ export default function Dashboard() {
     applicationsSubmitted: number;
     connectedAgents: number;
   } | null>(null);
+  const [sla, setSla] = useState<any>(null);
+  const [costs, setCosts] = useState<any>(null);
+  const [health, setHealth] = useState<any>(null);
   const [activity, setActivity] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [statsData, activityData] = await Promise.all([
+        const [statsData, slaData, costData, healthData, activityData] = await Promise.all([
           api.getDashboardStats(),
+          api.getSlaMetrics(7),
+          api.getLlmCosts(30),
+          api.getHealth(),
           api.getActivityFeed(),
         ]);
         setStats(statsData);
+        setSla(slaData);
+        setCosts(costData);
+        setHealth(healthData);
         setActivity(activityData);
       } catch (error) {
         console.error('Failed to load dashboard data:', error);
@@ -70,30 +79,30 @@ export default function Dashboard() {
           ) : (
             <>
               <StatCard
-                title="Programs Found"
-                value={stats?.programsFound ?? 0}
-                description="Total discovered programs"
-                icon={Search}
-                trend={{ value: 12, positive: true }}
+                title="System Health"
+                value={health?.status === 'ok' ? "Healthy" : "Unknown"}
+                description={`Version ${health?.version || '0.1.0'}`}
+                icon={Wifi}
+                trend={{ value: 100, positive: true }}
               />
               <StatCard
-                title="Pending Approvals"
-                value={stats?.pendingApprovals ?? 0}
-                description="Awaiting your review"
+                title="SLA MTTR"
+                value={sla ? `${sla.mttr_minutes}m` : "0m"}
+                description="Avg. resolution time"
                 icon={FileText}
               />
               <StatCard
-                title="Applications"
-                value={stats?.applicationsSubmitted ?? 0}
-                description="Total submitted"
+                title="Human Intervention"
+                value={sla ? `${(sla.human_intervention_rate * 100).toFixed(1)}%` : "0%"}
+                description={`${sla?.intervention_count || 0} manual actions`}
                 icon={CheckCircle}
-                trend={{ value: 8, positive: true }}
+                trend={{ value: sla?.captcha_rate * 100 || 0, positive: false }}
               />
               <StatCard
-                title="Connected Agents"
-                value={stats?.connectedAgents ?? 0}
-                description="Active automation"
-                icon={Wifi}
+                title="AI Cost"
+                value={`$${costs?.total_cost_usd || '0.00'}`}
+                description={`${costs?.total_calls || 0} LLM predictions`}
+                icon={Search}
               />
             </>
           )}

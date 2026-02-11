@@ -4,7 +4,8 @@ Phase 7.5
 """
 
 from sqlalchemy import Column, String, DateTime, ForeignKey, Integer, Enum as SQLEnum, JSON
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from app.db.base import Base
 import uuid
 import enum
@@ -24,8 +25,8 @@ class ExportJob(Base):
     """
     __tablename__ = "export_jobs"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), index=True, nullable=False)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), index=True, nullable=False)
     
     export_type = Column(String(50), nullable=False)  # csv, json, zip
     status = Column(SQLEnum(ExportStatus), default=ExportStatus.PENDING, index=True)

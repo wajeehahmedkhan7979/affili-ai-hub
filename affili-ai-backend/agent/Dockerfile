@@ -1,20 +1,21 @@
-FROM mcr.microsoft.com/playwright/python:latest
+FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
 
 WORKDIR /app
 
-# Copy requirements
+# Copy requirements from root
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt && \
-    playwright install
+    playwright install chromium
 
-# Copy agent code
-COPY agent/ .
-COPY app/ /app/app
+# Copy entire app directory (needed for imports)
+COPY app/ /app/app/
+COPY scripts/ /app/scripts/
 
-# Copy .env config
-COPY agent/agent_config.env .env
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
 
-# Run agent
-CMD ["python", "main.py"]
+# Run the worker
+CMD ["python", "scripts/run_worker.py"]
