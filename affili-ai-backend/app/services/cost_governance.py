@@ -10,6 +10,7 @@ Implements:
 """
 
 from sqlalchemy.orm import Session
+from app.core.time import utcnow
 from app.models.tenant import Tenant
 from app.core.logging import logger
 from typing import Dict, Any, Optional
@@ -153,7 +154,10 @@ class CostGovernance:
         tokens_used: int,
         cost_usd: float,
         model: str = "gemini-1.5-flash",
-        operation: Optional[str] = None
+        operation: Optional[str] = None,
+        prompt_version_id: Optional[uuid.UUID] = None,
+        confidence: Optional[float] = None,
+        latency_ms: Optional[int] = None
     ):
         """
         Record an LLM API call for cost tracking (PERSISTENT).
@@ -175,7 +179,10 @@ class CostGovernance:
             model=model,
             tokens_used=tokens_used,
             cost_usd=cost_usd,
-            operation=operation
+            operation=operation,
+            prompt_version_id=prompt_version_id,
+            confidence=confidence,
+            latency_ms=latency_ms
         )
         
         try:
@@ -211,14 +218,14 @@ class CostGovernance:
                 tenant_id=tenant_id,
                 ai_disabled=True,
                 disable_reason=reason,
-                disabled_at=datetime.utcnow(),
+                disabled_at=utcnow(),
                 disabled_by=disabled_by
             )
             db.add(flag)
         else:
             flag.ai_disabled = True
             flag.disable_reason = reason
-            flag.disabled_at = datetime.utcnow()
+            flag.disabled_at = utcnow()
             flag.disabled_by = disabled_by
         
         db.commit()
@@ -265,7 +272,7 @@ class CostGovernance:
         """)
         
         error_msg = f"Task canceled: {reason} (Tenant Kill-switch Active)"
-        log_suffix = f"\n[{datetime.utcnow()}] KILL-SWITCH: {reason}"
+        log_suffix = f"\n[{utcnow()}] KILL-SWITCH: {reason}"
         
         db.execute(update_sql, {
             'failed': TaskStatus.FAILED.value,
@@ -333,7 +340,7 @@ class CostGovernance:
         from app.models.llm_usage_log import LLMUsageLog
         from sqlalchemy import func
         
-        today = datetime.utcnow().date()
+        today = utcnow().date()
         
         count = db.query(LLMUsageLog).filter(
             LLMUsageLog.tenant_id == tenant_id,

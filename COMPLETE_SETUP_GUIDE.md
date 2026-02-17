@@ -422,21 +422,35 @@ python scripts/create_operational_tables.py
 
 ---
 
+---
+
 ## 📊 Governance & Observability
 
 ### Dashboard Widgets (Integrated)
 
+- **Operator Dashboard**: Live at `/dashboard` (after login).
+    - **Worker Status**: Real-time active workers & queue depth.
+    - **Governance Controls**: System Kill-Switch & Backup Triggers.
+    - **Task Inspector**: Deep dive into individual task execution.
 - **System Health**: Real-time status from `/api/v1/health`.
 - **SLA Metrics**: MTTR (Mean Time to Resolution) and Human Intervention rates.
 - **AI Cost Control**: Monthly token/USD consumption tracking.
 
 ### Verification Suite
 
-Run the full E2E demo script to validate discovery and auth:
+Run the full suite of verification scripts to certify the environment:
 
 ```bash
 # From affili-ai-backend root
+
+# 1. E2E System Check
 python scripts/verify_full_system.py
+
+# 2. Chaos & Resilience Tests (Database/Worker Failures)
+pytest tests/chaos/test_integrity_under_fire.py
+
+# 3. Load & Scale Validation (200 Concurrent Tasks)
+python scripts/load_test.py
 ```
 
 ---

@@ -3,6 +3,7 @@ Agent service for reputation tracking and health scoring.
 """
 
 from sqlalchemy.orm import Session
+from app.core.time import utcnow
 from app.models.agent import Agent
 from app.models.task import Task
 from app.automation.failure_classifier import FailureType
@@ -57,7 +58,7 @@ def update_agent_stats(db: Session, task: Task) -> Optional[Agent]:
     
     # Update counters
     agent.total_tasks += 1
-    agent.last_seen = datetime.utcnow()
+    agent.last_seen = utcnow()
     
     if task.status == "COMPLETED":
         agent.successful_tasks += 1

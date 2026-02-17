@@ -3,7 +3,8 @@ Application ORM model - user application to an affiliate program.
 """
 
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Text, Enum as SQLEnum, JSON
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 import uuid
@@ -32,8 +33,8 @@ class Application(Base):
     user_data = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     status = Column(SQLEnum(ApplicationStatus), default=ApplicationStatus.PENDING, index=True)
     agent_status = Column(String(50), default="IDLE", index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow, index=True)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     
     def __repr__(self) -> str:
         return f"<Application(id={self.id}, program_id={self.program_id}, status={self.status})>"

@@ -1,0 +1,1599 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-7.4.3, pluggy-1.6.0 -- D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend
+plugins: anyio-3.7.1, asyncio-0.21.1, cov-4.1.0
+asyncio: mode=Mode.STRICT
+collecting ... collected 30 items
+
+tests/system/test_full_product_certification.py::TestAuth::test_signup_creates_user_and_tenant FAILED [  3%]
+tests/system/test_full_product_certification.py::TestAuth::test_signup_duplicate_rejected PASSED [  6%]
+tests/system/test_full_product_certification.py::TestAuth::test_login_valid_credentials ERROR [ 10%]
+tests/system/test_full_product_certification.py::TestAuth::test_login_wrong_password ERROR [ 13%]
+tests/system/test_full_product_certification.py::TestAuth::test_get_me ERROR [ 16%]
+tests/system/test_full_product_certification.py::TestAuth::test_token_refresh ERROR [ 20%]
+tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_list_programs_empty ERROR [ 23%]
+tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_create_and_list_program ERROR [ 26%]
+tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_delete_program ERROR [ 30%]
+tests/system/test_full_product_certification.py::TestBulkApply::test_create_discover_task ERROR [ 33%]
+tests/system/test_full_product_certification.py::TestBulkApply::test_create_apply_task ERROR [ 36%]
+tests/system/test_full_product_certification.py::TestBulkApply::test_list_tasks ERROR [ 40%]
+tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_claim ERROR [ 43%]
+tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_complete_lifecycle ERROR [ 46%]
+tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_failure_and_retry ERROR [ 50%]
+tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_heartbeat ERROR [ 53%]
+tests/system/test_full_product_certification.py::TestAIResponsePool::test_create_response ERROR [ 56%]
+tests/system/test_full_product_certification.py::TestAIResponsePool::test_list_responses ERROR [ 60%]
+tests/system/test_full_product_certification.py::TestAIResponsePool::test_search_responses ERROR [ 63%]
+tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_poll ERROR [ 66%]
+tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_claim_next ERROR [ 70%]
+tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_unauthorized_without_key PASSED [ 73%]
+tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_update_task ERROR [ 76%]
+tests/system/test_full_product_certification.py::TestWebSocket::test_ws_endpoint_exists PASSED [ 80%]
+tests/system/test_full_product_certification.py::TestWebSocket::test_health_indicates_ws_capability PASSED [ 83%]
+tests/system/test_full_product_certification.py::TestNotifications::test_audit_log_accessible ERROR [ 86%]
+tests/system/test_full_product_certification.py::TestNotifications::test_task_creates_audit_entry ERROR [ 90%]
+tests/system/test_full_product_certification.py::TestActivityFlags::test_health_endpoint PASSED [ 93%]
+tests/system/test_full_product_certification.py::TestActivityFlags::test_governance_status ERROR [ 96%]
+tests/system/test_full_product_certification.py::TestActivityFlags::test_dashboard_stats ERROR [100%]
+
+=================================== ERRORS ====================================
+___________ ERROR at setup of TestAuth.test_login_valid_credentials ___________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:23.006164', '2026-02-12 09:37:23.006170')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:23", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:23", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+____________ ERROR at setup of TestAuth.test_login_wrong_password _____________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:23.495487', '2026-02-12 09:37:23.495497')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:23", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:23", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+___________________ ERROR at setup of TestAuth.test_get_me ____________________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:24.107855', '2026-02-12 09:37:24.107861')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:24", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:24", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+________________ ERROR at setup of TestAuth.test_token_refresh ________________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:24.484229', '2026-02-12 09:37:24.484235')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:24", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:24", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+_______ ERROR at setup of TestDiscoverPrograms.test_list_programs_empty _______
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:24.846332', '2026-02-12 09:37:24.846337')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:24", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:24", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+_____ ERROR at setup of TestDiscoverPrograms.test_create_and_list_program _____
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:25.209114', '2026-02-12 09:37:25.209119')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:25", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:25", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+_________ ERROR at setup of TestDiscoverPrograms.test_delete_program __________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:25.590168', '2026-02-12 09:37:25.590173')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:25", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:25", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+__________ ERROR at setup of TestBulkApply.test_create_discover_task __________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:25.949618', '2026-02-12 09:37:25.949628')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:25", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:25", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+___________ ERROR at setup of TestBulkApply.test_create_apply_task ____________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:26.323230', '2026-02-12 09:37:26.323236')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:26", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:26", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+_______________ ERROR at setup of TestBulkApply.test_list_tasks _______________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:26.685509', '2026-02-12 09:37:26.685514')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:26", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:26", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+____________ ERROR at setup of TestTaskMonitoring.test_task_claim _____________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:27.051586', '2026-02-12 09:37:27.051593')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:27", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:27", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+______ ERROR at setup of TestTaskMonitoring.test_task_complete_lifecycle ______
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:27.426923', '2026-02-12 09:37:27.426929')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:27", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:27", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+______ ERROR at setup of TestTaskMonitoring.test_task_failure_and_retry _______
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:27.786233', '2026-02-12 09:37:27.786238')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:27", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:27", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+__________ ERROR at setup of TestTaskMonitoring.test_task_heartbeat ___________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:28.166236', '2026-02-12 09:37:28.166242')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:28", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:28", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+__________ ERROR at setup of TestAIResponsePool.test_create_response __________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:28.531305', '2026-02-12 09:37:28.531310')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:28", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:28", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+__________ ERROR at setup of TestAIResponsePool.test_list_responses ___________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:29.189174', '2026-02-12 09:37:29.189180')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:29", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:29", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+_________ ERROR at setup of TestAIResponsePool.test_search_responses __________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:29.557061', '2026-02-12 09:37:29.557066')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:29", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:29", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+____________ ERROR at setup of TestAgentConnection.test_agent_poll ____________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:30.088674', '2026-02-12 09:37:30.088680')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:30", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:30", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+_________ ERROR at setup of TestAgentConnection.test_agent_claim_next _________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:30.468934', '2026-02-12 09:37:30.468939')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:30", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:30", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+________ ERROR at setup of TestAgentConnection.test_agent_update_task _________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:30.916841', '2026-02-12 09:37:30.916847')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:30", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:30", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+________ ERROR at setup of TestNotifications.test_audit_log_accessible ________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:31.394243', '2026-02-12 09:37:31.394249')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:31", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:31", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+______ ERROR at setup of TestNotifications.test_task_creates_audit_entry ______
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:31.748301', '2026-02-12 09:37:31.748306')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:31", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:31", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+_________ ERROR at setup of TestActivityFlags.test_governance_status __________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:32.123427', '2026-02-12 09:37:32.123432')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:32", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:32", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+__________ ERROR at setup of TestActivityFlags.test_dashboard_stats ___________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: UNIQUE constraint failed: tenants.id
+
+The above exception was the direct cause of the following exception:
+tests\conftest.py:69: in create_test_tenant
+    db_session.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1048: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: tenants.id
+E   [SQL: INSERT INTO tenants (id, name, is_active, legal_hold, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)]
+E   [parameters: ('00000000-0000-0000-0000-000000000000', 'Test Tenant', 1, 0, '2026-02-12 09:37:32.481247', '2026-02-12 09:37:32.481256')]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:32", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:32", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+================================== FAILURES ===================================
+________________ TestAuth.test_signup_creates_user_and_tenant _________________
+tests\system\test_full_product_certification.py:39: in test_signup_creates_user_and_tenant
+    assert resp.status_code == 200, f"Signup failed: {resp.text}"
+E   AssertionError: Signup failed: {"detail":[{"type":"value_error","loc":["body","email"],"msg":"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.","input":"newuser@cert.test","ctx":{"reason":"The part after the @-sign is a special-use or reserved name that cannot be used with email."}}]}
+E   assert 422 == 200
+E    +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:22", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:22", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+---------------------------- Captured stdout call -----------------------------
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/auth/signup \"HTTP/1.1 422 Unprocessable Entity\"", "taskName": null, "timestamp": "2026-02-12T14:37:22", "logger": "httpx", "level": "INFO"}
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/auth/signup "HTTP/1.1 422 Unprocessable Entity"
+-------------------------- Captured stdout teardown ---------------------------
+{"correlation_id": null, "message": "Shutting down application", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T14:37:22", "logger": "affili-ai", "level": "INFO"}
+---------------------------- Captured log teardown ----------------------------
+INFO     affili-ai:main.py:70 Shutting down application
+============================== warnings summary ===============================
+app\db\base.py:3
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\db\base.py:3: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:295: 14 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic\_internal\_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+venv\Lib\site-packages\pydantic_settings\sources.py:659
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_settings\sources.py:659: UserWarning: directory "\run\secrets" does not exist
+    warnings.warn(f'directory "{path}" does not exist')
+
+tests/system/test_full_product_certification.py: 51 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\sqlalchemy\sql\schema.py:3624: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return util.wrap_callable(lambda ctx: fn(), fn)  # type: ignore
+
+tests/system/test_full_product_certification.py::TestWebSocket::test_health_indicates_ws_capability
+tests/system/test_full_product_certification.py::TestActivityFlags::test_health_endpoint
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\api\v1\health.py:20: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "time": datetime.utcnow().isoformat(),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/system/test_full_product_certification.py::TestAuth::test_signup_creates_user_and_tenant
+ERROR tests/system/test_full_product_certification.py::TestAuth::test_login_valid_credentials
+ERROR tests/system/test_full_product_certification.py::TestAuth::test_login_wrong_password
+ERROR tests/system/test_full_product_certification.py::TestAuth::test_get_me
+ERROR tests/system/test_full_product_certification.py::TestAuth::test_token_refresh
+ERROR tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_list_programs_empty
+ERROR tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_create_and_list_program
+ERROR tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_delete_program
+ERROR tests/system/test_full_product_certification.py::TestBulkApply::test_create_discover_task
+ERROR tests/system/test_full_product_certification.py::TestBulkApply::test_create_apply_task
+ERROR tests/system/test_full_product_certification.py::TestBulkApply::test_list_tasks
+ERROR tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_claim
+ERROR tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_complete_lifecycle
+ERROR tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_failure_and_retry
+ERROR tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_heartbeat
+ERROR tests/system/test_full_product_certification.py::TestAIResponsePool::test_create_response
+ERROR tests/system/test_full_product_certification.py::TestAIResponsePool::test_list_responses
+ERROR tests/system/test_full_product_certification.py::TestAIResponsePool::test_search_responses
+ERROR tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_poll
+ERROR tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_claim_next
+ERROR tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_update_task
+ERROR tests/system/test_full_product_certification.py::TestNotifications::test_audit_log_accessible
+ERROR tests/system/test_full_product_certification.py::TestNotifications::test_task_creates_audit_entry
+ERROR tests/system/test_full_product_certification.py::TestActivityFlags::test_governance_status
+ERROR tests/system/test_full_product_certification.py::TestActivityFlags::test_dashboard_stats
+============ 1 failed, 5 passed, 69 warnings, 24 errors in 10.50s =============

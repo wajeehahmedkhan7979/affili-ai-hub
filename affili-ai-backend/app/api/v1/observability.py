@@ -4,6 +4,7 @@ Observability and Metrics API.
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from app.core.time import utcnow
 from app.db.session import get_db
 from app.api.dependencies import get_current_user, require_roles
 from app.models.user import User, UserRole
@@ -22,7 +23,7 @@ def get_metrics_overview(
 ):
     """Get high-level system performance metrics for the tenant."""
     # 1. Success Rate (Last 24h)
-    yesterday = datetime.utcnow() - timedelta(days=1)
+    yesterday = utcnow() - timedelta(days=1)
     
     total_tasks = db.query(Task).filter(
         Task.tenant_id == current_user.tenant_id,
@@ -76,6 +77,28 @@ def get_detailed_health(db: Session = Depends(get_db)):
         "status": "UP" if db_status == "UP" else "DEGRADED",
         "components": {
             "database": db_status,
-            "system_time": datetime.utcnow().isoformat()
+            "system_time": utcnow().isoformat()
         }
+    }
+
+@router.get("/synthetic/latest", dependencies=[Depends(require_roles(UserRole.OWNER, UserRole.ADMIN))])
+def get_latest_synthetic_run(db: Session = Depends(get_db)):
+    """Get the most recent Synthetic Operator certification results."""
+    from app.models.metrics import SyntheticAudit
+    
+    run = db.query(SyntheticAudit).order_by(SyntheticAudit.timestamp.desc()).first()
+    
+    if not run:
+        return {
+            "status": "UNKNOWN",
+            "message": "No synthetic certification runs recorded yet.",
+            "timestamp": None
+        }
+        
+    return {
+        "id": str(run.id),
+        "timestamp": run.timestamp.isoformat(),
+        "status": run.status,
+        "results": run.results,
+        "duration_ms": run.duration_ms
     }

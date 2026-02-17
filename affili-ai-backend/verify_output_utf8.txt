@@ -1,0 +1,15 @@
+﻿venv\Scripts\python : D:\PROJECTS-REPOS\AFFILIATE-PROJ\affil
+i-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_s
+ettings\sources.py:659: UserWarning: directory 
+"\run\secrets" does not exist
+At line:1 char:1
++ venv\Scripts\python verify_phase20.py > 
+verify_output_final.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\PROJECTS-RE 
+   P... does not exist:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  warnings.warn(f'directory "{path}" does not exist')
+ERROR: No tenant found in DB. Run seed_data or E2E tests first.

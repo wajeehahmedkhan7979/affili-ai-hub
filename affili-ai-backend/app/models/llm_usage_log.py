@@ -5,7 +5,8 @@ Provides complete audit trail of all LLM API calls with token counts and costs.
 """
 
 from sqlalchemy import Column, String, DateTime, Integer, Numeric, ForeignKey, Index
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB, JSON
 from datetime import datetime
 import uuid
@@ -24,6 +25,7 @@ class LLMUsageLog(Base):
     __table_args__ = (
         Index("ix_llm_usage_tenant_created", "tenant_id", "created_at"),
         Index("ix_llm_usage_task", "task_id"),
+        Index("ix_llm_usage_prompt_version", "prompt_version_id"),
     )
     
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
@@ -35,12 +37,17 @@ class LLMUsageLog(Base):
     tokens_used = Column(Integer, nullable=False)
     cost_usd = Column(Numeric(10, 6), nullable=False)  # Up to $9999.999999
     
+    # AI Quality metrics
+    prompt_version_id = Column(UUID(), ForeignKey("prompt_templates.id"), nullable=True)
+    confidence = Column(Numeric(4, 3), nullable=True)  # self-reported 0.000 to 1.000
+    latency_ms = Column(Integer, nullable=True)
+    
     # Request context
     operation = Column(String(50), nullable=True)  # "field_prediction", "outreach_email", etc.
     extra_metadata = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     
     # Timestamp
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utcnow, index=True)
     
     def __repr__(self) -> str:
         return f"<LLMUsageLog(id={self.id}, model='{self.model}', tokens={self.tokens_used}, cost=${self.cost_usd})>"

@@ -15,6 +15,7 @@ from sqlalchemy import and_, or_
 from typing import List
 import uuid
 
+from app.core.time import utcnow
 from app.models.task import Task, TaskStatus
 from app.models.audit_log import AuditLog, AuditEventType
 
@@ -53,7 +54,7 @@ def reap_stale_task_claims(
         finally:
             db.close()
     """
-    cutoff_time = datetime.utcnow() - timedelta(minutes=heartbeat_timeout_minutes)
+    cutoff_time = utcnow() - timedelta(minutes=heartbeat_timeout_minutes)
     
     # Find stale tasks
     stale_tasks = db.query(Task).filter(
@@ -124,7 +125,7 @@ def get_stale_claim_metrics(
         - oldest_stale_claim: Oldest claim timestamp
         - agents_with_stale_claims: List of agent IDs with stale claims
     """
-    cutoff_time = datetime.utcnow() - timedelta(minutes=heartbeat_timeout_minutes)
+    cutoff_time = utcnow() - timedelta(minutes=heartbeat_timeout_minutes)
     
     stale_tasks = db.query(Task).filter(
         and_(

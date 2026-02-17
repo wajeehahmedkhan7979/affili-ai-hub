@@ -3,7 +3,8 @@ User model for RBAC.
 """
 
 from sqlalchemy import Column, String, Boolean, DateTime, Integer, Enum as SQLEnum, ForeignKey, UniqueConstraint
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
 import enum
@@ -29,9 +30,11 @@ class User(Base):
     # Use String for role to avoid Enum mapping issues with pgbouncer/drivers
     role = Column(String(50), nullable=False, default=UserRole.VIEWER.value)
     hashed_password = Column(String(255), nullable=True)
+    refresh_token_hash = Column(String(255), nullable=True)
     refresh_token_version = Column(Integer, default=1)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    last_login_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=utcnow)
     
     # Ensure email is unique per tenant
     __table_args__ = (

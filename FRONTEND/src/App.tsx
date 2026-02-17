@@ -7,6 +7,7 @@ import { ConfigProvider } from "./context/ConfigContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Programs from "./pages/Programs";
 import Applications from "./pages/Applications";
 import Tasks from "./pages/Tasks";
@@ -16,6 +17,7 @@ import AgentSetup from "./pages/AgentSetup";
 import Integrations from "./pages/Integrations";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import OperatorDashboard from "./pages/OperatorDashboard";
 import { Navigate, useLocation } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -45,7 +47,9 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><OperatorDashboard /></ProtectedRoute>} />
               <Route path="/programs" element={<ProtectedRoute><Programs /></ProtectedRoute>} />
               <Route path="/applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
               <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />

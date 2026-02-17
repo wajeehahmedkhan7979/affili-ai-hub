@@ -17,6 +17,7 @@ from app.services.response_pool import (
     update_response,
     delete_response,
 )
+from app.api.dependencies import get_current_user
 
 router = APIRouter(prefix="/response-pool", tags=["response-pool"])
 
@@ -25,6 +26,7 @@ router = APIRouter(prefix="/response-pool", tags=["response-pool"])
 def create_response_endpoint(
     response_in: ResponsePoolCreate,
     db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
 ):
     """Create a new Q&A pair in the response pool."""
     response = create_response(
@@ -33,6 +35,7 @@ def create_response_endpoint(
         response_in.answer,
         response_in.category,
         response_in.embedding,
+        tenant_id=current_user.tenant_id,
     )
     return response
 

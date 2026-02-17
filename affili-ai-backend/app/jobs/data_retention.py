@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 import logging
 
+from app.core.time import utcnow
 from app.models.task import Task, TaskStatus
 from app.models.audit_log import AuditLog
 from app.models.user import User
@@ -43,7 +44,7 @@ def cleanup_old_tasks(db: Session, dry_run: bool = False) -> dict:
     import time
     from sqlalchemy import text
     
-    now = datetime.utcnow()
+    now = utcnow()
     stats = {'completed_deleted': 0, 'failed_deleted': 0}
     BATCH_SIZE = 1000
     
@@ -128,7 +129,7 @@ def cleanup_old_audit_logs(db: Session, dry_run: bool = False) -> dict:
     
     Compliance requirement: Retain security logs for regulatory audits.
     """
-    now = datetime.utcnow()
+    now = utcnow()
     cutoff = now - timedelta(days=RetentionPolicy.AUDIT_LOGS_DAYS)
     
     query = db.query(AuditLog).filter(AuditLog.created_at < cutoff)
@@ -159,7 +160,7 @@ def anonymize_inactive_users(db: Session, dry_run: bool = False) -> dict:
     - Anonymize email and remove password
     - Retain for audit trail
     """
-    cutoff = datetime.utcnow() - timedelta(days=RetentionPolicy.INACTIVE_USERS_DAYS)
+    cutoff = utcnow() - timedelta(days=RetentionPolicy.INACTIVE_USERS_DAYS)
     
     inactive_users = db.query(User).filter(
         and_(

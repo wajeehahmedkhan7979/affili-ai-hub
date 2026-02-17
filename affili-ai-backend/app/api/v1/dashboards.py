@@ -7,6 +7,7 @@ Provides aggregated metrics for the UI dashboard.
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from app.core.time import utcnow
 from app.db.session import get_db
 from app.models.task import Task, TaskStatus, TaskType
 from app.models.agent import Agent
@@ -15,7 +16,7 @@ from app.models.tenant import Tenant
 from app.api.dependencies import get_current_user, require_roles
 from app.models.user import User, UserRole
 from app.core.tenant import get_tenant_id
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Any, Optional
 import uuid
 
@@ -54,7 +55,7 @@ def get_agent_health(
             "captcha_count": agent.captcha_count,
             "timeout_count": agent.timeout_count,
             "last_seen": agent.last_seen.isoformat() if agent.last_seen else None,
-            "status": "active" if agent.last_seen and (datetime.utcnow() - agent.last_seen).seconds < 300 else "inactive"
+            "status": "active" if agent.last_seen and (utcnow() - (agent.last_seen.replace(tzinfo=timezone.utc) if agent.last_seen.tzinfo is None else agent.last_seen)).seconds < 300 else "inactive"
         })
     
     return {
@@ -80,7 +81,7 @@ def get_task_throughput(
         days: Number of days to look back (1-90)
     """
     tenant_id = uuid.UUID(get_tenant_id())
-    since = datetime.utcnow() - timedelta(days=days)
+    since = utcnow() - timedelta(days=days)
     
     # Query task metrics
     metrics = db.query(
@@ -109,7 +110,7 @@ def get_task_throughput(
     
     return {
         "data": throughput_data,
-        "period": {"start": since.isoformat(), "end": datetime.utcnow().isoformat()}
+        "period": {"start": since.isoformat(), "end": utcnow().isoformat()}
     }
 
 
@@ -194,7 +195,7 @@ def get_dashboard_overview(
     # 3. Connected Agents (Active in last 5 mins)
     active_agents = db.query(Agent).filter(
         Agent.tenant_id == tenant_id,
-        Agent.last_seen >= datetime.utcnow() - timedelta(minutes=5)
+        Agent.last_seen >= utcnow() - timedelta(minutes=5)
     ).count()
     
     return {
@@ -221,7 +222,7 @@ def get_sla_metrics(
     - CAPTCHA frequency
     - Human intervention rate
     """
-    since = datetime.utcnow() - timedelta(days=days)
+    since = utcnow() - timedelta(days=days)
     
     # Get all tasks in period
     tasks = db.query(Task).filter(Task.created_at >= since).all()
@@ -291,7 +292,7 @@ def get_program_risk_score(
     - Success rate (weight: 10%, inverse)
     """
     program_uuid = uuid.UUID(program_id)
-    since = datetime.utcnow() - timedelta(days=days)
+    since = utcnow() - timedelta(days=days)
     
     # Get all tasks for program
     tasks = db.query(Task).filter(
@@ -371,7 +372,7 @@ def get_confidence_drift(
     Track mean AI confidence scores over time.
     """
     tenant_id = uuid.UUID(get_tenant_id())
-    since = datetime.utcnow() - timedelta(days=days)
+    since = utcnow() - timedelta(days=days)
     
     # Query tasks with results that have confidence scores
     # This assumes confidence is stored in task.result['confidence']

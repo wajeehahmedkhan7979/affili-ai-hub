@@ -2,7 +2,8 @@
 Data retention and legal hold models.
 """
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Integer
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
 
@@ -17,5 +18,5 @@ class RetentionRule(Base):
     entity_type = Column(String(50), nullable=False) # e.g. "tasks", "audit_logs", "deliveries"
     retention_days = Column(Integer, nullable=False, default=90)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)

@@ -57,7 +57,6 @@ def _initialize():
 
 
 # Expose engine and SessionLocal directly
-@property
 def engine():
     """Get the database engine."""
     _initialize()

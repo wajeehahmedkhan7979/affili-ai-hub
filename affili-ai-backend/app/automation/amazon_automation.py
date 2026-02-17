@@ -11,6 +11,7 @@ from typing import Dict, Any, Optional, Tuple
 
 from playwright.async_api import async_playwright, Page, Browser, BrowserContext
 
+from app.core.time import utcnow
 from app.automation.base_automation import BaseAffiliateAutomation
 
 
@@ -81,7 +82,7 @@ class AmazonAssociatesAutomation(BaseAffiliateAutomation):
                 # Take pre-fill screenshot
                 screenshot_before = os.path.join(
                     screenshot_dir,
-                    f"amazon_before_{datetime.utcnow().timestamp()}.png",
+                    f"amazon_before_{utcnow().timestamp()}.png",
                 )
                 await page.screenshot(path=screenshot_before, full_page=True)
                 screenshots["before"] = screenshot_before
@@ -104,7 +105,7 @@ class AmazonAssociatesAutomation(BaseAffiliateAutomation):
                 # Take screenshot before submit
                 screenshot_filled = os.path.join(
                     screenshot_dir,
-                    f"amazon_filled_{datetime.utcnow().timestamp()}.png",
+                    f"amazon_filled_{utcnow().timestamp()}.png",
                 )
                 await page.screenshot(path=screenshot_filled, full_page=True)
                 logs.append(f"[{self._now()}] Post-fill screenshot saved")
@@ -139,7 +140,7 @@ class AmazonAssociatesAutomation(BaseAffiliateAutomation):
                 # Take post-submit screenshot
                 screenshot_after = os.path.join(
                     screenshot_dir,
-                    f"amazon_after_{datetime.utcnow().timestamp()}.png",
+                    f"amazon_after_{utcnow().timestamp()}.png",
                 )
                 await page.screenshot(path=screenshot_after, full_page=True)
                 screenshots["after"] = screenshot_after

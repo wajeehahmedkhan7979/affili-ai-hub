@@ -11,6 +11,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from typing import Any, Dict, List
 
+from app.core.time import utcnow
 from app.models.webhook import WebhookConfig, WebhookDelivery
 
 async def deliver_webhook(
@@ -29,7 +30,7 @@ async def deliver_webhook(
     # Prepare payload
     body = {
         "event": event_type,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": utcnow().isoformat(),
         "payload": payload
     }
     body_str = json.dumps(body)

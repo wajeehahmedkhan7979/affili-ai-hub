@@ -24,9 +24,7 @@ def seed_dev():
             print(f"Creating default tenant {tenant_id}...")
             tenant = Tenant(
                 id=tenant_id,
-                name="Default Tenant",
-                slug="default",
-                plan="professional"
+                name="Default Tenant"
             )
             db.add(tenant)
             db.flush()

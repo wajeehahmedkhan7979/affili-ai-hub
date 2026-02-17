@@ -13,6 +13,7 @@ from sqlalchemy import text
 from typing import Dict, List
 import logging
 
+from app.core.time import utcnow
 from app.core.logging import logger
 
 
@@ -85,7 +86,7 @@ def detect_stale_claims(db: Session, hours: int = 24) -> Dict[str, int]:
     Returns:
         dict: Count of stale claims
     """
-    cutoff = datetime.utcnow() - timedelta(hours=hours)
+    cutoff = utcnow() - timedelta(hours=hours)
     
     stale_query = text("""
         SELECT id, claimed_at, agent_id, status

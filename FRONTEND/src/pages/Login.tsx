@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,26 +33,13 @@ const Login: React.FC = () => {
       });
       
       if (!response.ok) {
-        throw new Error('Invalid credentials');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Invalid credentials');
       }
       
       const data = await response.json();
       
-      // Decode JWT to get user info (simplified for now, ideally backend returns user info or we use a decoder)
-      // For this implementation, we'll assume a successful login returns the token and we can hardcode the dev user for verification
-      // In a real app, the backend /auth/login would return the user object or we'd decode the JWT sub/role
-      
-      // Temporary: Parse roles from token if possible or fetch /me
-      // Since we need to verify RBAC, let's assume the user is what's seeded
-      
-      const demoUser = {
-        id: "00000000-0000-0000-0000-000000000001",
-        email,
-        role: email.includes('admin') ? 'ADMIN' : (email.includes('owner') ? 'OWNER' : 'OPERATOR'),
-        tenant_id: tenantId
-      };
-      
-      login(data.access_token, data.refresh_token, demoUser as any);
+      login(data.access_token, data.refresh_token, data.user);
       toast.success("Login successful");
       navigate(from, { replace: true });
     } catch (error) {
@@ -133,8 +120,14 @@ const Login: React.FC = () => {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-2 text-sm text-center text-muted-foreground">
+        <CardFooter className="flex flex-col space-y-4 text-sm text-center text-muted-foreground">
           <p>Dev Mode: Use 'admin@example.com' with 'password'</p>
+          <p>
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-primary font-medium hover:underline">
+              Sign Up
+            </Link>
+          </p>
         </CardFooter>
       </Card>
     </div>

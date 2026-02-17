@@ -15,6 +15,7 @@ from typing import Optional, List
 from datetime import datetime, timedelta
 import uuid
 
+from app.core.time import utcnow
 from app.db.session import get_db
 from app.core.auth import require_roles, get_current_user
 from app.models import TenantRuntimeFlag, LLMUsageLog, OperatorActionLog, OperatorActionType
@@ -76,7 +77,7 @@ def enable_killswitch(
             "status": "disabled",
             "tenant_id": str(tenant_id),
             "reason": request.reason,
-            "disabled_at": datetime.utcnow().isoformat(),
+            "disabled_at": utcnow().isoformat(),
             "disabled_by": str(current_user.id)
         }
     except Exception as e:
@@ -115,7 +116,7 @@ def disable_killswitch(
         return {
             "status": "enabled",
             "tenant_id": str(tenant_id),
-            "enabled_at": datetime.utcnow().isoformat()
+            "enabled_at": utcnow().isoformat()
         }
     except Exception as e:
         logger.error(f"Failed to disable kill-switch: {e}")
@@ -167,7 +168,7 @@ def get_llm_costs(
     Returns total cost, token usage, and breakdown by model.
     """
     tenant_id = current_user.tenant_id
-    since = datetime.utcnow() - timedelta(days=days)
+    since = utcnow() - timedelta(days=days)
     
     # Query  LLM usage
     logs = db.query(LLMUsageLog).filter(
@@ -225,7 +226,7 @@ def get_operator_actions(
     Returns recent human interventions for compliance/debugging.
     """
     tenant_id = current_user.tenant_id
-    since = datetime.utcnow() - timedelta(days=days)
+    since = utcnow() - timedelta(days=days)
     
     actions = db.query(OperatorActionLog).filter(
         and_(

@@ -52,7 +52,7 @@ services:
     container_name: affili-ai-worker
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/affili_ai_db?host=postgres
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/affili_ai_db
       AGENT_CLIENT_ID: docker-worker
     depends_on:
       postgres:

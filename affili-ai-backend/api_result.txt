@@ -1,0 +1,2 @@
+SUCCESS:
+{"task_type":"DISCOVER_PROGRAM","payload":{"seed_url":"https://www.techradar.com/"},"program_id":null,"id":"43dd6180-c8d6-4b9e-82db-3e8ba2dc256c","status":"PENDING","result":null,"agent_id":null,"retry_count":0,"max_retries":3,"logs":null,"screenshot_url":null,"error_message":null,"operator_confidence":null,"feedback_json":null,"created_at":"2026-02-17T06:09:37.609585","updated_at":"2026-02-17T06:09:37.609588","claimed_at":null,"started_at":null,"completed_at":null,"last_heartbeat":null}

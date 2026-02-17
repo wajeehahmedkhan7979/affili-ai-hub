@@ -2,7 +2,8 @@
 Billing models for plan and subscription management.
 """
 from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Enum as SQLEnum, Float, Boolean
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
 import enum
@@ -31,7 +32,7 @@ class TenantBilling(Base):
     tenant_id = Column(UUID(), ForeignKey("tenants.id"), primary_key=True)
     plan_id = Column(UUID(), ForeignKey("billing_plans.id"), nullable=False)
     status = Column(SQLEnum(BillingStatus), default=BillingStatus.ACTIVE)
-    cycle_start = Column(DateTime, default=datetime.utcnow)
+    cycle_start = Column(DateTime, default=utcnow)
     
     def __repr__(self) -> str:
         return f"<TenantBilling(tenant_id={self.tenant_id}, status={self.status})>"

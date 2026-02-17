@@ -8,6 +8,7 @@ Implements safe feedback loop:
 """
 
 from sqlalchemy.orm import Session
+from app.core.time import utcnow
 from app.models.human_feedback import HumanFeedback, FeedbackVerdict
 from app.models.form_field_embedding import FormFieldEmbedding
 from app.services.embedding_service import store_field_embedding, generate_embedding
@@ -66,7 +67,7 @@ def process_feedback_reinforcement(
     
     # Mark as processed
     feedback.processed = True
-    feedback.processed_at = datetime.utcnow()
+    feedback.processed_at = utcnow()
     db.commit()
     
     logger.info(f"Feedback processed: action={action}")
@@ -99,7 +100,7 @@ def _handle_correct_feedback(
     if embedding:
         old_count = embedding.success_count
         embedding.success_count += 1
-        embedding.last_used_at = datetime.utcnow()
+        embedding.last_used_at = utcnow()
         db.commit()
         
         logger.info(f"Boosted embedding {embedding.id}: {old_count} → {embedding.success_count}")
@@ -204,7 +205,7 @@ def apply_embedding_decay(
     """
     logger.info(f"Applying embedding decay for tenant {tenant_id}")
     
-    threshold_date = datetime.utcnow() - timedelta(days=decay_threshold_days)
+    threshold_date = utcnow() - timedelta(days=decay_threshold_days)
     
     # Find old embeddings
     old_embeddings = db.query(FormFieldEmbedding).filter(
@@ -263,7 +264,7 @@ def get_correction_frequency(
             "accuracy": float
         }
     """
-    since = datetime.utcnow() - timedelta(days=days)
+    since = utcnow() - timedelta(days=days)
     
     query = db.query(HumanFeedback).filter(
         HumanFeedback.tenant_id == tenant_id,

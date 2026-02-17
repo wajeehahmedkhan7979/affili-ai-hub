@@ -1,0 +1,92 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-7.4.3, pluggy-1.6.0 -- D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend
+plugins: anyio-3.7.1, asyncio-0.21.1, cov-4.1.0
+asyncio: mode=Mode.STRICT
+collecting ... collected 30 items
+
+tests/system/test_full_product_certification.py::TestAuth::test_signup_creates_user_and_tenant PASSED [  3%]
+tests/system/test_full_product_certification.py::TestAuth::test_signup_duplicate_rejected PASSED [  6%]
+tests/system/test_full_product_certification.py::TestAuth::test_login_valid_credentials PASSED [ 10%]
+tests/system/test_full_product_certification.py::TestAuth::test_login_wrong_password PASSED [ 13%]
+tests/system/test_full_product_certification.py::TestAuth::test_get_me PASSED [ 16%]
+tests/system/test_full_product_certification.py::TestAuth::test_token_refresh PASSED [ 20%]
+tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_list_programs_empty PASSED [ 23%]
+tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_create_and_list_program PASSED [ 26%]
+tests/system/test_full_product_certification.py::TestDiscoverPrograms::test_delete_program PASSED [ 30%]
+tests/system/test_full_product_certification.py::TestBulkApply::test_create_discover_task PASSED [ 33%]
+tests/system/test_full_product_certification.py::TestBulkApply::test_create_apply_task PASSED [ 36%]
+tests/system/test_full_product_certification.py::TestBulkApply::test_list_tasks PASSED [ 40%]
+tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_claim PASSED [ 43%]
+tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_complete_lifecycle FAILED [ 46%]
+tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_failure_and_retry PASSED [ 50%]
+tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_heartbeat PASSED [ 53%]
+tests/system/test_full_product_certification.py::TestAIResponsePool::test_create_response PASSED [ 56%]
+tests/system/test_full_product_certification.py::TestAIResponsePool::test_list_responses PASSED [ 60%]
+tests/system/test_full_product_certification.py::TestAIResponsePool::test_search_responses PASSED [ 63%]
+tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_poll PASSED [ 66%]
+tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_claim_next PASSED [ 70%]
+tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_unauthorized_without_key PASSED [ 73%]
+tests/system/test_full_product_certification.py::TestAgentConnection::test_agent_update_task PASSED [ 76%]
+tests/system/test_full_product_certification.py::TestWebSocket::test_ws_endpoint_exists PASSED [ 80%]
+tests/system/test_full_product_certification.py::TestWebSocket::test_health_indicates_ws_capability PASSED [ 83%]
+tests/system/test_full_product_certification.py::TestNotifications::test_audit_log_accessible PASSED [ 86%]
+tests/system/test_full_product_certification.py::TestNotifications::test_task_creates_audit_entry PASSED [ 90%]
+tests/system/test_full_product_certification.py::TestActivityFlags::test_health_endpoint PASSED [ 93%]
+tests/system/test_full_product_certification.py::TestActivityFlags::test_governance_status PASSED [ 96%]
+tests/system/test_full_product_certification.py::TestActivityFlags::test_dashboard_stats PASSED [100%]
+
+================================== FAILURES ===================================
+_______________ TestTaskMonitoring.test_task_complete_lifecycle _______________
+tests\system\test_full_product_certification.py:256: in test_task_complete_lifecycle
+    assert done_resp.json()["status"] == "COMPLETED"
+E   AssertionError: assert 'RUNNING' == 'COMPLETED'
+E     - COMPLETED
+E     + RUNNING
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T15:05:44", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T15:05:44", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/auth/login \"HTTP/1.1 200 OK\"", "taskName": null, "timestamp": "2026-02-12T15:05:45", "logger": "httpx", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+---------------------------- Captured stdout call -----------------------------
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/tasks \"HTTP/1.1 201 Created\"", "taskName": null, "timestamp": "2026-02-12T15:05:45", "logger": "httpx", "level": "INFO"}
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/tasks/8a12b33c-88f4-40da-8aa1-f9053a2243b8/claim \"HTTP/1.1 200 OK\"", "taskName": null, "timestamp": "2026-02-12T15:05:45", "logger": "httpx", "level": "INFO"}
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/tasks/8a12b33c-88f4-40da-8aa1-f9053a2243b8/update \"HTTP/1.1 200 OK\"", "taskName": null, "timestamp": "2026-02-12T15:05:45", "logger": "httpx", "level": "INFO"}
+Warning: Failed to record metrics for task 8a12b33c-88f4-40da-8aa1-f9053a2243b8: can't subtract offset-naive and offset-aware datetimes
+DEBUG: Checking workflow progression for task 8a12b33c-88f4-40da-8aa1-f9053a2243b8
+DEBUG: Workflow progression completed for task 8a12b33c-88f4-40da-8aa1-f9053a2243b8
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/tasks/8a12b33c-88f4-40da-8aa1-f9053a2243b8/update \"HTTP/1.1 200 OK\"", "taskName": null, "timestamp": "2026-02-12T15:05:45", "logger": "httpx", "level": "INFO"}
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/tasks "HTTP/1.1 201 Created"
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/tasks/8a12b33c-88f4-40da-8aa1-f9053a2243b8/claim "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/tasks/8a12b33c-88f4-40da-8aa1-f9053a2243b8/update "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/tasks/8a12b33c-88f4-40da-8aa1-f9053a2243b8/update "HTTP/1.1 200 OK"
+-------------------------- Captured stdout teardown ---------------------------
+{"correlation_id": null, "message": "Shutting down application", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T15:05:45", "logger": "affili-ai", "level": "INFO"}
+---------------------------- Captured log teardown ----------------------------
+INFO     affili-ai:main.py:70 Shutting down application
+============================== warnings summary ===============================
+app\db\base.py:3
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\db\base.py:3: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:295: 14 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic\_internal\_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+venv\Lib\site-packages\pydantic_settings\sources.py:659
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_settings\sources.py:659: UserWarning: directory "\run\secrets" does not exist
+    warnings.warn(f'directory "{path}" does not exist')
+
+tests/system/test_full_product_certification.py: 24 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\jose\jwt.py:311: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = timegm(datetime.utcnow().utctimetuple())
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/system/test_full_product_certification.py::TestTaskMonitoring::test_task_complete_lifecycle
+================= 1 failed, 29 passed, 40 warnings in 28.24s ==================

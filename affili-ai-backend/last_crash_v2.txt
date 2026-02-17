@@ -1,0 +1,35 @@
+﻿venv\Scripts\python : D:\PROJECTS-REPOS\AFFIL
+IATE-PROJ\affili-ai-hub\affili-ai-backend\ven
+v\Lib\site-packages\pydantic_settings\sources
+.py:659: UserWarning: directory 
+"\run\secrets" does not exist
+At line:1 char:110
++ ... e; sleep 2; venv\Scripts\python -m 
+uvicorn app.main:app --port 8000 - ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified:  
+   (D:\PROJECTS-REP... does not exist:Strin  
+  g) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandE 
+   rror
+ 
+  warnings.warn(f'directory "{path}" does 
+not exist')
+INFO:     Started server process [13824]
+INFO:     Waiting for application startup.
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "Task-2", "timestamp": "2026-02-12T17:34:24", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "Task-2", "timestamp": "2026-02-12T17:34:24", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Connected to Redis Event Bus", "taskName": "Task-2", "timestamp": "2026-02-12T17:34:24", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus listener started", "taskName": "Task-2", "timestamp": "2026-02-12T17:34:24", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus initialized and listening", "taskName": "Task-2", "timestamp": "2026-02-12T17:34:24", "logger": "affili-ai", "level": "INFO"}
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while 
+attempting to bind on address ('127.0.0.1', 
+8000): [winerror 10048] only one usage of 
+each socket address (protocol/network 
+address/port) is normally permitted
+INFO:     Waiting for application shutdown.
+{"correlation_id": null, "message": "Shutting down application", "taskName": "Task-2", "timestamp": "2026-02-12T17:34:24", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Disconnected from Redis Event Bus", "taskName": "Task-2", "timestamp": "2026-02-12T17:34:24", "logger": "app.core.redis_bus", "level": "INFO"}
+INFO:     Application shutdown complete.

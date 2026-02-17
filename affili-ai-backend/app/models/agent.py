@@ -2,8 +2,9 @@
 Agent model for reputation tracking.
 """
 
-from sqlalchemy import Column, String, DateTime, Integer, Float, ForeignKey, Index
-from sqlalchemy import UUID
+from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Integer, Index, Float
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from datetime import datetime
 
 from app.db.base import Base
@@ -31,10 +32,13 @@ class Agent(Base):
     # Health score (0-100)
     health_score = Column(Float, default=100.0)
     
+    # Cryptographic Identity (v2)
+    pinned_public_key = Column(String(512), nullable=True)
+    
     # Timestamps
     last_seen = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     
     def __repr__(self) -> str:
         return f"<Agent(id={self.id}, pool={self.pool}, health={self.health_score})>"

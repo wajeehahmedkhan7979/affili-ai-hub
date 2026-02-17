@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session
+from app.core.time import utcnow
 from app.models.task import Task
 from app.models.usage import TenantUsage
 from app.models.export_job import ExportJob, ExportStatus
@@ -54,7 +55,7 @@ def process_export_job(db: Session, job_id: uuid.UUID):
         job.status = ExportStatus.PROCESSING
         db.commit()
         
-        filename = f"{job.tenant_id}_{job.export_type}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        filename = f"{job.tenant_id}_{job.export_type}_{utcnow().strftime('%Y%m%d%H%M%S')}"
         file_path = os.path.join(EXPORT_DIR, filename)
         
         if job.export_type == "tasks_csv":
@@ -68,7 +69,7 @@ def process_export_job(db: Session, job_id: uuid.UUID):
             
         job.file_path = file_path
         job.status = ExportStatus.COMPLETED
-        job.completed_at = datetime.utcnow()
+        job.completed_at = utcnow()
         db.commit()
         
     except Exception as e:

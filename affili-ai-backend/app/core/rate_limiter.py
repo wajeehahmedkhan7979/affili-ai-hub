@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from fastapi import HTTPException
 import threading
+from app.core.time import utcnow
 
 
 class RateLimiter:
@@ -42,7 +43,7 @@ class RateLimiter:
         max_requests, window_seconds = self.limits[key]
         
         with self._lock:
-            now = datetime.utcnow()
+            now = utcnow()
             cutoff = now - timedelta(seconds=window_seconds)
             
             # Get request timestamps for this identifier and key

@@ -4,6 +4,7 @@ Agents API endpoints for reputation tracking.
 
 from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
+from app.core.time import utcnow
 from app.db.session import get_db
 from app.services.agent_service import list_agents
 from app.models.agent import Agent
@@ -23,7 +24,7 @@ def get_agent_status(db: Session = Depends(get_db)):
     from app.models.agent import Agent
     
     # Check for agents active in the last 60 seconds
-    threshold = datetime.utcnow() - timedelta(seconds=60)
+    threshold = utcnow() - timedelta(seconds=60)
     any_active = db.query(Agent).filter(Agent.last_seen >= threshold).first()
     
     return {
@@ -146,7 +147,7 @@ def poll_tasks(
     
     # 1. Update Agent Heartbeat
     agent = get_or_create_agent(db, payload.client_id, pool="default")
-    agent.last_seen = datetime.utcnow()
+    agent.last_seen = utcnow()
     db.commit()
     
     # 2. Find pending tasks

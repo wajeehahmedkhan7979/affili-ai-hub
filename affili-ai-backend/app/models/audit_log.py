@@ -4,7 +4,8 @@ Phase 7.4
 """
 
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Integer, Enum as SQLEnum, JSON
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from app.db.base import Base
 import uuid
@@ -54,7 +55,7 @@ class AuditLog(Base):
     ip_address = Column(String(45), nullable=True)
     user_agent = Column(String(255), nullable=True)
     
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utcnow, index=True)
 
     def __repr__(self) -> str:
         return f"<AuditLog({self.event_type}, actor={self.actor_email}, resource={self.resource_type})>"

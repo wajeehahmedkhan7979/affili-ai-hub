@@ -6,7 +6,8 @@ backend instances.
 """
 
 from sqlalchemy import Column, String, DateTime, Text, Boolean, ForeignKey, Integer
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
 
@@ -33,8 +34,8 @@ class TenantRuntimeFlag(Base):
     max_tasks_per_program = Column(Integer, nullable=False, default=10)
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     
     def __repr__(self) -> str:
         return f"<TenantRuntimeFlag(tenant_id={self.tenant_id}, ai_disabled={self.ai_disabled})>"

@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     # Rate Limiting & Redis
-    REDIS_URL: Optional[str] = None  # e.g., redis://localhost:6379/0
+    REDIS_URL: str = "redis://localhost:6379/0"
     
     # Metrics
     METRICS_ENABLED: bool = True

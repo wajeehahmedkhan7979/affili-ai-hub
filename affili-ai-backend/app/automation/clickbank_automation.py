@@ -11,6 +11,7 @@ from typing import Dict, Any, Optional, Tuple
 
 from playwright.async_api import async_playwright, Page, Browser, BrowserContext
 
+from app.core.time import utcnow
 from app.automation.base_automation import BaseAffiliateAutomation
 
 
@@ -84,7 +85,7 @@ class ClickBankAutomation(BaseAffiliateAutomation):
                 # Take pre-fill screenshot
                 screenshot_before = os.path.join(
                     screenshot_dir,
-                    f"clickbank_before_{datetime.utcnow().timestamp()}.png",
+                    f"clickbank_before_{utcnow().timestamp()}.png",
                 )
                 await page.screenshot(path=screenshot_before, full_page=True)
                 screenshots["before"] = screenshot_before
@@ -114,7 +115,7 @@ class ClickBankAutomation(BaseAffiliateAutomation):
                 # Take screenshot before submit
                 screenshot_filled = os.path.join(
                     screenshot_dir,
-                    f"clickbank_filled_{datetime.utcnow().timestamp()}.png",
+                    f"clickbank_filled_{utcnow().timestamp()}.png",
                 )
                 await page.screenshot(path=screenshot_filled, full_page=True)
                 logs.append(f"[{self._now()}] Post-fill screenshot saved")
@@ -157,7 +158,7 @@ class ClickBankAutomation(BaseAffiliateAutomation):
                 # Take post-submit screenshot
                 screenshot_after = os.path.join(
                     screenshot_dir,
-                    f"clickbank_after_{datetime.utcnow().timestamp()}.png",
+                    f"clickbank_after_{utcnow().timestamp()}.png",
                 )
                 await page.screenshot(path=screenshot_after, full_page=True)
                 screenshots["after"] = screenshot_after

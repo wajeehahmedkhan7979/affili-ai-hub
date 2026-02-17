@@ -22,6 +22,9 @@ from app.models.human_feedback import HumanFeedback, FeedbackVerdict
 from app.models.tenant_runtime_flag import TenantRuntimeFlag
 from app.models.llm_usage_log import LLMUsageLog
 from app.models.operator_action_log import OperatorActionLog, OperatorActionType
+from app.models.prompt_template import PromptTemplate
+from app.models.workflow import WorkflowDefinition, WorkflowInstance, WorkflowStepInstance
+from app.models.security import LoginHistory, RiskProfile
 
 __all__ = [
     "Tenant",
@@ -55,4 +58,10 @@ __all__ = [
     "LLMUsageLog",
     "OperatorActionLog",
     "OperatorActionType",
+    "PromptTemplate",
+    "WorkflowDefinition",
+    "WorkflowInstance",
+    "WorkflowStepInstance",
+    "LoginHistory",
+    "RiskProfile"
 ]

@@ -4,7 +4,8 @@ Phase 7.5
 """
 
 from sqlalchemy import Column, String, DateTime, ForeignKey, Integer, Enum as SQLEnum, JSON
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from app.db.base import Base
 import uuid
@@ -35,7 +36,7 @@ class ExportJob(Base):
     file_path = Column(String(500), nullable=True) # Local path or S3 URL
     error_message = Column(String(500), nullable=True)
     
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
     completed_at = Column(DateTime, nullable=True)
 
     def __repr__(self) -> str:

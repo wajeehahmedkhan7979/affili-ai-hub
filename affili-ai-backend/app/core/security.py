@@ -12,12 +12,15 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any, List
-from fastapi import Request, HTTPException
+from fastapi import Request, HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordBearer
 from starlette.middleware.base import BaseHTTPMiddleware
-
 from app.core.config import get_settings
+from app.core.tenant import set_tenant_id
 
 settings = get_settings()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 class IPAllowlistMiddleware(BaseHTTPMiddleware):
     """Middleware to restrict access based on IP allowlists."""

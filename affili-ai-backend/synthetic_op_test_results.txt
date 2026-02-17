@@ -1,0 +1,188 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-7.4.3, pluggy-1.6.0 -- D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend
+plugins: anyio-3.7.1, asyncio-0.21.1, cov-4.1.0
+asyncio: mode=Mode.STRICT
+collecting ... collected 2 items
+
+tests/system/test_synthetic_operator.py::test_synthetic_operator_cycle FAILED [ 50%]
+tests/system/test_synthetic_operator.py::test_synthetic_observability_endpoint ERROR [100%]
+
+=================================== ERRORS ====================================
+___________ ERROR at setup of test_synthetic_observability_endpoint ___________
+tests\conftest.py:54: in client
+    with TestClient(app) as c:
+venv\Lib\site-packages\starlette\testclient.py:745: in __enter__
+    portal.call(self.wait_startup)
+venv\Lib\site-packages\anyio\from_thread.py:277: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:217: in _call_func
+    retval = await retval
+venv\Lib\site-packages\starlette\testclient.py:780: in wait_startup
+    await receive()
+venv\Lib\site-packages\starlette\testclient.py:771: in receive
+    self.task.result()
+C:\Python313\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:217: in _call_func
+    retval = await retval
+venv\Lib\site-packages\starlette\testclient.py:761: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+venv\Lib\site-packages\fastapi\applications.py:1106: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:122: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:149: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\cors.py:75: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:26: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:26: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:26: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:55: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:20: in __call__
+    raise e
+venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:17: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:707: in __call__
+    await self.lifespan(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:677: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+C:\Python313\Lib\contextlib.py:214: in __aenter__
+    return await anext(self.gen)
+app\main.py:104: in lifespan
+    certification_task = asyncio.create_task(synthetic_operator_task())
+E   NameError: name 'asyncio' is not defined. Did you forget to import 'asyncio'?
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T16:54:49", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T16:54:49", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus listener started", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T16:54:49", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus initialized and listening", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T16:54:49", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:83 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:84 Environment: development
+INFO     app.core.redis_bus:redis_bus.py:74 Redis Event Bus listener started
+INFO     affili-ai:main.py:97 Redis Event Bus initialized and listening
+================================== FAILURES ===================================
+________________________ test_synthetic_operator_cycle ________________________
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: synthetic_audits
+
+The above exception was the direct cause of the following exception:
+app\services\synthetic_operator.py:74: in run_certification
+    self._store_result(db, status, results, start_time)
+app\services\synthetic_operator.py:164: in _store_result
+    db.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1311: in commit
+    self._prepare_impl()
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1286: in _prepare_impl
+    self.session.flush()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4331: in flush
+    self._flush(objects)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4466: in _flush
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:4427: in _flush
+    flush_context.execute()
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:466: in execute
+    rec.execute(self)
+venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:93: in save_obj
+    _emit_insert_statements(
+venv\Lib\site-packages\sqlalchemy\orm\persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+venv\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: synthetic_audits
+E   [SQL: INSERT INTO synthetic_audits (id, timestamp, status, results, duration_ms) VALUES (?, ?, ?, ?, ?)]
+E   [parameters: ('6f48a5e9-e7f8-4cff-8892-892ad7caa284', '2026-02-12 11:54:48.715276', 'DOWN', '{"auth": "UP", "task_flow": "DOWN", "broadcasting": "UP", "errors": []}', 4618)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+During handling of the above exception, another exception occurred:
+tests\system\test_synthetic_operator.py:18: in test_synthetic_operator_cycle
+    await synthetic_op.run_certification()
+app\services\synthetic_operator.py:80: in run_certification
+    self._store_result(db, "DOWN", results, start_time)
+app\services\synthetic_operator.py:164: in _store_result
+    db.commit()
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2030: in commit
+    trans.commit(_to_root=True)
+<string>:2: in commit
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:101: in _go
+    self._raise_for_prerequisite_state(fn.__name__, current_state)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:971: in _raise_for_prerequisite_state
+    raise sa_exc.PendingRollbackError(
+E   sqlalchemy.exc.PendingRollbackError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (sqlite3.OperationalError) no such table: synthetic_audits
+E   [SQL: INSERT INTO synthetic_audits (id, timestamp, status, results, duration_ms) VALUES (?, ?, ?, ?, ?)]
+E   [parameters: ('6f48a5e9-e7f8-4cff-8892-892ad7caa284', '2026-02-12 11:54:48.715276', 'DOWN', '{"auth": "UP", "task_flow": "DOWN", "broadcasting": "UP", "errors": []}', 4618)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8) (Background on this error at: https://sqlalche.me/e/20/7s2a)
+---------------------------- Captured stdout call -----------------------------
+{"correlation_id": null, "message": "Created Synthetic Certification User", "taskName": "Task-1", "timestamp": "2026-02-12T16:54:44", "logger": "app.services.synthetic_operator", "level": "INFO"}
+{"correlation_id": null, "message": "Task flow check failed: 'SYNTHETIC_CHECK' is not among the defined enum values. Enum name: tasktype. Possible values: DISCOVER_PR.., APPLY_PROGR.., PUBLISH_OFF..", "taskName": "Task-1", "timestamp": "2026-02-12T16:54:44", "logger": "app.services.synthetic_operator", "level": "ERROR"}
+{"correlation_id": null, "message": "Connected to Redis Event Bus", "taskName": "Task-1", "timestamp": "2026-02-12T16:54:44", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Failed to publish to Redis channel ws:system:synthetic: Error 22 connecting to localhost:6379. The remote computer refused the network connection.", "taskName": "Task-1", "timestamp": "2026-02-12T16:54:48", "logger": "app.core.redis_bus", "level": "ERROR"}
+{"correlation_id": null, "message": "Synthetic Operator error: (sqlite3.OperationalError) no such table: synthetic_audits\n[SQL: INSERT INTO synthetic_audits (id, timestamp, status, results, duration_ms) VALUES (?, ?, ?, ?, ?)]\n[parameters: ('6f48a5e9-e7f8-4cff-8892-892ad7caa284', '2026-02-12 11:54:48.715276', 'DOWN', '{\"auth\": \"UP\", \"task_flow\": \"DOWN\", \"broadcasting\": \"UP\", \"errors\": []}', 4618)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)", "taskName": "Task-1", "timestamp": "2026-02-12T16:54:48", "logger": "app.services.synthetic_operator", "level": "ERROR"}
+------------------------------ Captured log call ------------------------------
+INFO     app.services.synthetic_operator:synthetic_operator.py:105 Created Synthetic Certification User
+ERROR    app.services.synthetic_operator:synthetic_operator.py:138 Task flow check failed: 'SYNTHETIC_CHECK' is not among the defined enum values. Enum name: tasktype. Possible values: DISCOVER_PR.., APPLY_PROGR.., PUBLISH_OFF..
+INFO     app.core.redis_bus:redis_bus.py:29 Connected to Redis Event Bus
+ERROR    app.core.redis_bus:redis_bus.py:53 Failed to publish to Redis channel ws:system:synthetic: Error 22 connecting to localhost:6379. The remote computer refused the network connection.
+ERROR    app.services.synthetic_operator:synthetic_operator.py:78 Synthetic Operator error: (sqlite3.OperationalError) no such table: synthetic_audits
+[SQL: INSERT INTO synthetic_audits (id, timestamp, status, results, duration_ms) VALUES (?, ?, ?, ?, ?)]
+[parameters: ('6f48a5e9-e7f8-4cff-8892-892ad7caa284', '2026-02-12 11:54:48.715276', 'DOWN', '{"auth": "UP", "task_flow": "DOWN", "broadcasting": "UP", "errors": []}', 4618)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+============================== warnings summary ===============================
+app\db\base.py:4
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\db\base.py:4: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:295: 14 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic\_internal\_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+venv\Lib\site-packages\pydantic_settings\sources.py:659
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_settings\sources.py:659: UserWarning: directory "\run\secrets" does not exist
+    warnings.warn(f'directory "{path}" does not exist')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/system/test_synthetic_operator.py::test_synthetic_operator_cycle
+ERROR tests/system/test_synthetic_operator.py::test_synthetic_observability_endpoint
+=================== 1 failed, 16 warnings, 1 error in 5.41s ===================

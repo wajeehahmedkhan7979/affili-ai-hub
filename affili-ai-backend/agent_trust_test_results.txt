@@ -1,0 +1,281 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-7.4.3, pluggy-1.6.0 -- D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend
+plugins: anyio-3.7.1, asyncio-0.21.1, cov-4.1.0
+asyncio: mode=Mode.STRICT
+collecting ... collected 3 items
+
+tests/system/test_agent_trust.py::test_agent_identity_pinning PASSED     [ 33%]
+tests/system/test_agent_trust.py::test_agent_signature_verification FAILED [ 66%]
+tests/system/test_agent_trust.py::test_agent_replay_protection FAILED    [100%]
+
+================================== FAILURES ===================================
+______________________ test_agent_signature_verification ______________________
+venv\Lib\site-packages\anyio\streams\memory.py:98: in receive
+    return self.receive_nowait()
+venv\Lib\site-packages\anyio\streams\memory.py:93: in receive_nowait
+    raise WouldBlock
+E   anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+venv\Lib\site-packages\starlette\middleware\base.py:78: in call_next
+    message = await recv_stream.receive()
+venv\Lib\site-packages\anyio\streams\memory.py:118: in receive
+    raise EndOfStream
+E   anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+tests\system\test_agent_trust.py:69: in test_agent_signature_verification
+    resp = client.post(f"/api/v1/tasks/{task.id}/update", headers=agent_headers,
+venv\Lib\site-packages\starlette\testclient.py:590: in post
+    return super().post(
+venv\Lib\site-packages\httpx\_client.py:1132: in post
+    return self.request(
+venv\Lib\site-packages\starlette\testclient.py:465: in request
+    return super().request(
+venv\Lib\site-packages\httpx\_client.py:814: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:901: in send
+    response = self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:929: in _send_handling_auth
+    response = self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:966: in _send_handling_redirects
+    response = self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1002: in _send_single_request
+    response = transport.handle_request(request)
+venv\Lib\site-packages\starlette\testclient.py:342: in handle_request
+    raise exc
+venv\Lib\site-packages\starlette\testclient.py:339: in handle_request
+    portal.call(self.app, scope, receive, send)
+venv\Lib\site-packages\anyio\from_thread.py:277: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:217: in _call_func
+    retval = await retval
+venv\Lib\site-packages\fastapi\applications.py:1106: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:122: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:184: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:162: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\starlette\middleware\cors.py:83: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:108: in __call__
+    response = await self.dispatch_func(request, call_next)
+app\core\security.py:34: in dispatch
+    return await call_next(request)
+venv\Lib\site-packages\starlette\middleware\base.py:84: in call_next
+    raise app_exc
+venv\Lib\site-packages\starlette\middleware\base.py:70: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+venv\Lib\site-packages\starlette\middleware\base.py:108: in __call__
+    response = await self.dispatch_func(request, call_next)
+app\core\middleware\security.py:40: in dispatch
+    return await call_next(request)
+venv\Lib\site-packages\starlette\middleware\base.py:84: in call_next
+    raise app_exc
+venv\Lib\site-packages\starlette\middleware\base.py:70: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+venv\Lib\site-packages\starlette\middleware\base.py:108: in __call__
+    response = await self.dispatch_func(request, call_next)
+app\main.py:125: in dispatch
+    response = await call_next(request)
+venv\Lib\site-packages\starlette\middleware\base.py:84: in call_next
+    raise app_exc
+venv\Lib\site-packages\starlette\middleware\base.py:70: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:79: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\exceptions.py:68: in __call__
+    await self.app(scope, receive, sender)
+venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:20: in __call__
+    raise e
+venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:17: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:718: in __call__
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:66: in app
+    response = await func(request)
+venv\Lib\site-packages\fastapi\routing.py:274: in app
+    raw_response = await run_endpoint_function(
+venv\Lib\site-packages\fastapi\routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+app\api\v1\tasks.py:192: in update_task
+    signature = request.headers.get("X-Agent-Signature")
+E   NameError: name 'request' is not defined
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Connected to Redis Event Bus", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus listener started", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus initialized and listening", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:84 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:85 Environment: development
+INFO     app.core.redis_bus:redis_bus.py:29 Connected to Redis Event Bus
+INFO     app.core.redis_bus:redis_bus.py:74 Redis Event Bus listener started
+INFO     affili-ai:main.py:98 Redis Event Bus initialized and listening
+---------------------------- Captured stdout call -----------------------------
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/tasks/07b7f51d-5f06-4a19-9851-2b9c8ff802b2/claim \"HTTP/1.1 200 OK\"", "taskName": null, "timestamp": "2026-02-12T17:04:46", "logger": "httpx", "level": "INFO"}
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/tasks/07b7f51d-5f06-4a19-9851-2b9c8ff802b2/claim "HTTP/1.1 200 OK"
+-------------------------- Captured stdout teardown ---------------------------
+{"correlation_id": null, "message": "Shutting down application", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Disconnected from Redis Event Bus", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "app.core.redis_bus", "level": "INFO"}
+---------------------------- Captured log teardown ----------------------------
+INFO     affili-ai:main.py:109 Shutting down application
+INFO     app.core.redis_bus:redis_bus.py:43 Disconnected from Redis Event Bus
+________________________ test_agent_replay_protection _________________________
+venv\Lib\site-packages\anyio\streams\memory.py:98: in receive
+    return self.receive_nowait()
+venv\Lib\site-packages\anyio\streams\memory.py:93: in receive_nowait
+    raise WouldBlock
+E   anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+venv\Lib\site-packages\starlette\middleware\base.py:78: in call_next
+    message = await recv_stream.receive()
+venv\Lib\site-packages\anyio\streams\memory.py:118: in receive
+    raise EndOfStream
+E   anyio.EndOfStream
+
+During handling of the above exception, another exception occurred:
+tests\system\test_agent_trust.py:106: in test_agent_replay_protection
+    resp = client.post(f"/api/v1/tasks/{task.id}/update", headers=headers,
+venv\Lib\site-packages\starlette\testclient.py:590: in post
+    return super().post(
+venv\Lib\site-packages\httpx\_client.py:1132: in post
+    return self.request(
+venv\Lib\site-packages\starlette\testclient.py:465: in request
+    return super().request(
+venv\Lib\site-packages\httpx\_client.py:814: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:901: in send
+    response = self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:929: in _send_handling_auth
+    response = self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:966: in _send_handling_redirects
+    response = self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1002: in _send_single_request
+    response = transport.handle_request(request)
+venv\Lib\site-packages\starlette\testclient.py:342: in handle_request
+    raise exc
+venv\Lib\site-packages\starlette\testclient.py:339: in handle_request
+    portal.call(self.app, scope, receive, send)
+venv\Lib\site-packages\anyio\from_thread.py:277: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:217: in _call_func
+    retval = await retval
+venv\Lib\site-packages\fastapi\applications.py:1106: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:122: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:184: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:162: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\starlette\middleware\cors.py:83: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:108: in __call__
+    response = await self.dispatch_func(request, call_next)
+app\core\security.py:34: in dispatch
+    return await call_next(request)
+venv\Lib\site-packages\starlette\middleware\base.py:84: in call_next
+    raise app_exc
+venv\Lib\site-packages\starlette\middleware\base.py:70: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+venv\Lib\site-packages\starlette\middleware\base.py:108: in __call__
+    response = await self.dispatch_func(request, call_next)
+app\core\middleware\security.py:40: in dispatch
+    return await call_next(request)
+venv\Lib\site-packages\starlette\middleware\base.py:84: in call_next
+    raise app_exc
+venv\Lib\site-packages\starlette\middleware\base.py:70: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+venv\Lib\site-packages\starlette\middleware\base.py:108: in __call__
+    response = await self.dispatch_func(request, call_next)
+app\main.py:125: in dispatch
+    response = await call_next(request)
+venv\Lib\site-packages\starlette\middleware\base.py:84: in call_next
+    raise app_exc
+venv\Lib\site-packages\starlette\middleware\base.py:70: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:79: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\exceptions.py:68: in __call__
+    await self.app(scope, receive, sender)
+venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:20: in __call__
+    raise e
+venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:17: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:718: in __call__
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:276: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:66: in app
+    response = await func(request)
+venv\Lib\site-packages\fastapi\routing.py:274: in app
+    raw_response = await run_endpoint_function(
+venv\Lib\site-packages\fastapi\routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+app\api\v1\tasks.py:192: in update_task
+    signature = request.headers.get("X-Agent-Signature")
+E   NameError: name 'request' is not defined
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Connected to Redis Event Bus", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus listener started", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus initialized and listening", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:46", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:84 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:85 Environment: development
+INFO     app.core.redis_bus:redis_bus.py:29 Connected to Redis Event Bus
+INFO     app.core.redis_bus:redis_bus.py:74 Redis Event Bus listener started
+INFO     affili-ai:main.py:98 Redis Event Bus initialized and listening
+---------------------------- Captured stdout call -----------------------------
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/tasks/d5e4f54a-3df6-490e-958d-4da5052beb69/claim \"HTTP/1.1 200 OK\"", "taskName": null, "timestamp": "2026-02-12T17:04:46", "logger": "httpx", "level": "INFO"}
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/tasks/d5e4f54a-3df6-490e-958d-4da5052beb69/claim "HTTP/1.1 200 OK"
+-------------------------- Captured stdout teardown ---------------------------
+{"correlation_id": null, "message": "Shutting down application", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:47", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Disconnected from Redis Event Bus", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T17:04:47", "logger": "app.core.redis_bus", "level": "INFO"}
+---------------------------- Captured log teardown ----------------------------
+INFO     affili-ai:main.py:109 Shutting down application
+INFO     app.core.redis_bus:redis_bus.py:43 Disconnected from Redis Event Bus
+============================== warnings summary ===============================
+app\db\base.py:4
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\db\base.py:4: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:295: 14 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic\_internal\_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+venv\Lib\site-packages\pydantic_settings\sources.py:659
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_settings\sources.py:659: UserWarning: directory "\run\secrets" does not exist
+    warnings.warn(f'directory "{path}" does not exist')
+
+tests/system/test_agent_trust.py::test_agent_identity_pinning
+tests/system/test_agent_trust.py::test_agent_signature_verification
+tests/system/test_agent_trust.py::test_agent_replay_protection
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\core\redis_bus.py:41: DeprecationWarning: Call to deprecated close. (Use aclose() instead) -- Deprecated since version 5.0.1.
+    await self.redis.close()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/system/test_agent_trust.py::test_agent_signature_verification - ...
+FAILED tests/system/test_agent_trust.py::test_agent_replay_protection - NameE...
+================== 2 failed, 1 passed, 19 warnings in 0.96s ===================

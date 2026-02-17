@@ -39,6 +39,7 @@ class TaskClaimRequest(BaseModel):
     """Schema for claiming a task."""
     agent_id: str
     agent_pool: Optional[str] = "default"
+    public_key: Optional[str] = None  # Ed25519 public key (Base64)
 
 
 class TaskPollRequest(BaseModel):

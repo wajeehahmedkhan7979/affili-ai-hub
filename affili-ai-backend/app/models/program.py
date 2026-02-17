@@ -2,8 +2,9 @@
 Program ORM model - represents an affiliate program.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, Boolean, Float, Integer, ForeignKey
-from sqlalchemy import UUID
+from sqlalchemy import Column, String, Text, DateTime, Boolean, Float, Integer, ForeignKey, Index, Enum as SQLEnum, JSON
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
 
@@ -32,8 +33,8 @@ class Program(Base):
     commission_rate = Column(Float, nullable=True, default=0.0)
     terms = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow, index=True)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     
     def __repr__(self) -> str:
         return f"<Program(id={self.id}, name={self.name})>"

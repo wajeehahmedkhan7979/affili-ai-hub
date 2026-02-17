@@ -14,6 +14,7 @@ def create_response(
     answer: str,
     category: Optional[str] = None,
     embedding: Optional[List[float]] = None,
+    tenant_id: Optional[uuid.UUID] = None,
 ) -> ResponsePool:
     """Create a new Q&A response in the pool."""
     response = ResponsePool(
@@ -21,6 +22,7 @@ def create_response(
         answer=answer,
         category=category,
         embedding=embedding,
+        tenant_id=tenant_id,
     )
     db.add(response)
     db.commit()

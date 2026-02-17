@@ -6,6 +6,7 @@ from sqlalchemy import delete, and_
 from datetime import datetime, timedelta
 import uuid
 
+from app.core.time import utcnow
 from app.models.retention import RetentionRule
 from app.models.tenant import Tenant
 from app.models.task import Task
@@ -26,7 +27,7 @@ def run_cleanup_for_tenant(db: Session, tenant_id: uuid.UUID):
     
     deleted_count = 0
     for rule in rules:
-        cutoff = datetime.utcnow() - timedelta(days=rule.retention_days)
+        cutoff = utcnow() - timedelta(days=rule.retention_days)
         
         if rule.entity_type == "tasks":
             # Only delete terminal tasks

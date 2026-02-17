@@ -12,8 +12,8 @@ from app.db.session import SessionLocal
 from app.models.user import User, UserRole
 from app.core.tenant import set_tenant_id, DEFAULT_TENANT_ID
 
-# Hardcoded values from app/services/auth_service.py
-SECRET_KEY = "DEV_SECRET_KEY_CHANGE_IN_PROD"
+# Hardcoded values from app/core/config.py
+SECRET_KEY = "9f7a5b3c4e2d1f0a8b9c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5"
 ALGORITHM = "HS256"
 
 logging.basicConfig(level=logging.INFO)

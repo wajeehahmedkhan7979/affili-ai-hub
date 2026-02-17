@@ -10,6 +10,10 @@ from app.core.config import get_settings
 from app.core.logging import logger
 from typing import Dict, Any, List, Optional
 import json
+import time
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from app.services.prompt_service import prompt_service
+from app.db.session import Session
 
 settings = get_settings()
 
@@ -54,16 +58,39 @@ def predict_field_value(
             "value": str,               # Predicted value
             "confidence": float (0-1),  # Confidence score
             "source": str,              # "rag" | "heuristic" | "rejected"
-            "reasoning": str            # Explanation of the decision
+            "reasoning": str,           # Explanation of the decision
+            "prompt_version_id": str | None,
+            "latency_ms": int | None
         }
     """
+    start_time = time.time()
+    
+    # Internal function to handle the actual LLM call with retries
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        retry=retry_if_exception_type((Exception)), # Broad for now, can be refined
+        reraise=True
+    )
+    def _call_gemini_with_retry(model_name: str, prompt_text: str, temp: float):
+        model = genai.GenerativeModel(model_name)
+        return model.generate_content(
+            prompt_text,
+            generation_config=genai.GenerationConfig(
+                temperature=temp,
+                response_mime_type="application/json"
+            )
+        )
+
     if not GEMINI_AVAILABLE:
         logger.warning("Gemini not configured, returning rejected prediction")
         return {
             "value": "",
             "confidence": 0.0,
             "source": "rejected",
-            "reasoning": "LLM service not configured"
+            "reasoning": "LLM service not configured",
+            "prompt_version_id": None,
+            "latency_ms": 0
         }
     
     # GOVERNANCE: Check LLM quota before calling API
@@ -83,24 +110,58 @@ def predict_field_value(
                 "value": "",
                 "confidence": 0.0,
                 "source": "rejected",
-                "reasoning": f"LLM quota exceeded: {governance_check['reason']}"
+                "reasoning": f"LLM quota exceeded: {governance_check['reason']}",
+                "prompt_version_id": None,
+                "latency_ms": 0
             }
     
-    # Build prompt
-    prompt = _build_prediction_prompt(field_label, field_type, rag_candidates, user_context)
+    # Fetch prompt from Database if possible
+    prompt_version_id = None
+    model_name = 'gemini-1.5-flash'
+    prompt_content = None
+    
+    if db:
+        active_prompt = prompt_service.get_active_prompt(db, "field_prediction")
+        if active_prompt:
+            prompt_version_id = active_prompt.id
+            prompt_content = active_prompt.content
+            if active_prompt.config and "model" in active_prompt.config:
+                model_name = active_prompt.config["model"]
+            if active_prompt.config and "temperature" in active_prompt.config:
+                temperature = active_prompt.config["temperature"]
+
+    # Build prompt using template or fallback
+    if prompt_content:
+        # Simple string formatting for now, can move to Jinja2 if needed
+        # We need to be careful about keys. Let's assume the template uses {key}
+        try:
+            rag_context = _format_rag_context(rag_candidates)
+            user_data = json.dumps(user_context, indent=2)
+            prompt = prompt_content.format(
+                field_label=field_label,
+                field_type=field_type,
+                rag_context=rag_context,
+                user_data=user_data
+            )
+        except Exception as e:
+            logger.error(f"Failed to format versioned prompt: {e}. Falling back to default.")
+            prompt = _build_prediction_prompt(field_label, field_type, rag_candidates, user_context)
+    else:
+        prompt = _build_prediction_prompt(field_label, field_type, rag_candidates, user_context)
     
     try:
-        # Initialize Gemini model
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Generate prediction with retry and fallback
+        try:
+            response = _call_gemini_with_retry(model_name, prompt, temperature)
+        except Exception as e:
+            logger.warning(f"Gemini call failed after retries: {e}. Attempting fallback model...")
+            # FALLBACK logic
+            if model_name != 'gemini-1.5-flash':
+                 response = _call_gemini_with_retry('gemini-1.5-flash', prompt, temperature)
+            else:
+                 raise e
         
-        # Generate prediction with JSON schema enforcement
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.GenerationConfig(
-                temperature=temperature,
-                response_mime_type="application/json"
-            )
-        )
+        latency_ms = int((time.time() - start_time) * 1000)
         
         # Parse JSON response
         result = json.loads(response.text)
@@ -108,19 +169,28 @@ def predict_field_value(
         # Validate schema
         _validate_prediction_schema(result)
         
+        # Inject metadata
+        result["prompt_version_id"] = str(prompt_version_id) if prompt_version_id else None
+        result["latency_ms"] = latency_ms
+        
         # GOVERNANCE: Record LLM usage
         if tenant_id and db:
             from app.services.cost_governance import cost_governance
-            # Estimate tokens (rough approximation: 1 token ~= 4 chars)
+            # Estimate tokens
             estimated_tokens = (len(prompt) + len(response.text)) // 4
-            estimated_cost = estimated_tokens * 0.0000001  # Example cost
+            estimated_cost = estimated_tokens * 0.0000001
             
             cost_governance.record_llm_call(
                 db=db,
                 tenant_id=tenant_id,
                 task_id=task_id,
                 tokens_used=estimated_tokens,
-                cost_usd=estimated_cost
+                cost_usd=estimated_cost,
+                model=model_name,
+                operation="field_prediction",
+                prompt_version_id=prompt_version_id,
+                confidence=result.get("confidence"),
+                latency_ms=latency_ms
             )
         
         logger.info(f"LLM prediction for '{field_label}': confidence={result['confidence']}, source={result['source']}")
@@ -132,7 +202,9 @@ def predict_field_value(
             "value": "",
             "confidence": 0.0,
             "source": "rejected",
-            "reasoning": f"LLM response parsing error: {str(e)}"
+            "reasoning": f"LLM response parsing error: {str(e)}",
+            "prompt_version_id": str(prompt_version_id) if prompt_version_id else None,
+            "latency_ms": int((time.time() - start_time) * 1000)
         }
     except Exception as e:
         logger.error(f"LLM prediction failed: {e}")
@@ -140,8 +212,24 @@ def predict_field_value(
             "value": "",
             "confidence": 0.0,
             "source": "rejected",
-            "reasoning": f"LLM error: {str(e)}"
+            "reasoning": f"LLM error: {str(e)}",
+            "prompt_version_id": str(prompt_version_id) if prompt_version_id else None,
+            "latency_ms": int((time.time() - start_time) * 1000)
         }
+
+
+def _format_rag_context(rag_candidates: List[Dict[str, Any]]) -> str:
+    """Format RAG candidates for the prompt."""
+    if not rag_candidates:
+        return "**No RAG candidates found** (first time seeing this field)\n\n"
+        
+    context = "**RAG Candidates from past successful submissions:**\n"
+    for idx, candidate in enumerate(rag_candidates[:3], 1):
+        context += f"{idx}. Label: '{candidate['field_label']}'\n"
+        context += f"   Value: '{candidate['successful_value']}'\n"
+        context += f"   Similarity: {candidate['similarity']:.2f}\n"
+        context += f"   Success count: {candidate['success_count']}\n\n"
+    return context
 
 
 def _build_prediction_prompt(

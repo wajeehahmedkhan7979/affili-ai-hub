@@ -3,6 +3,7 @@ Health check and status endpoints.
 """
 
 from fastapi import APIRouter
+from app.core.time import utcnow
 from app.core.config import get_settings
 from datetime import datetime
 
@@ -17,6 +18,6 @@ def health_check():
     return {
         "status": "ok",
         "version": settings.VERSION,
-        "time": datetime.utcnow().isoformat(),
+        "time": utcnow().isoformat(),
         "environment": settings.ENVIRONMENT,
     }

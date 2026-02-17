@@ -1,0 +1,44 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-7.4.3, pluggy-1.6.0 -- D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend
+plugins: anyio-3.7.1, asyncio-0.21.1, cov-4.1.0
+asyncio: mode=Mode.STRICT
+collecting ... collected 2 items
+
+tests/system/test_distributed_ws.py::test_distributed_broadcast_logic PASSED [ 50%]
+tests/system/test_distributed_ws.py::test_redis_broadcaster_subscription_flow FAILED [100%]
+
+================================== FAILURES ===================================
+__________________ test_redis_broadcaster_subscription_flow ___________________
+tests\system\test_distributed_ws.py:96: in test_redis_broadcaster_subscription_flow
+    assert mock_create_task.called
+E   AssertionError: assert False
+E    +  where False = <MagicMock name='create_task' id='2579092589264'>.called
+---------------------------- Captured stdout call -----------------------------
+{"correlation_id": null, "message": "Redis listener loop error: 'async for' requires an object with __aiter__ method, got coroutine", "taskName": "Task-2", "timestamp": "2026-02-12T15:40:38", "logger": "app.core.redis_bus", "level": "ERROR"}
+------------------------------ Captured log call ------------------------------
+ERROR    app.core.redis_bus:redis_bus.py:105 Redis listener loop error: 'async for' requires an object with __aiter__ method, got coroutine
+============================== warnings summary ===============================
+app\db\base.py:4
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\db\base.py:4: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:295: 14 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic\_internal\_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+venv\Lib\site-packages\pydantic_settings\sources.py:659
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_settings\sources.py:659: UserWarning: directory "\run\secrets" does not exist
+    warnings.warn(f'directory "{path}" does not exist')
+
+tests/system/test_distributed_ws.py::test_redis_broadcaster_subscription_flow
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\core\redis_bus.py:85: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    async for message in self.pubsub.listen():
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/system/test_distributed_ws.py::test_redis_broadcaster_subscription_flow
+================== 1 failed, 1 passed, 17 warnings in 0.23s ===================

@@ -1,0 +1,28 @@
+﻿venv\Scripts\python : D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib
+\site-packages\pydantic_settings\sources.py:659: UserWarning: directory "\run\secrets" does 
+not exist
+At line:1 char:1
++ venv\Scripts\python -m uvicorn app.main:app --port 8000 --host 127.0. ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\PROJECTS-REP... does not exist:String) [], Rem 
+   oteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  warnings.warn(f'directory "{path}" does not exist')
+INFO:     Started server process [5564]
+INFO:     Waiting for application startup.
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "Task-2", "timestamp": "2026-02-12T17:17:00", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "Task-2", "timestamp": "2026-02-12T17:17:00", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Connected to Redis Event Bus", "taskName": "Task-2", "timestamp": "2026-02-12T17:17:00", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus listener started", "taskName": "Task-2", "timestamp": "2026-02-12T17:17:00", "logger": "app.core.redis_bus", "level": "INFO"}
+{"correlation_id": null, "message": "Redis Event Bus initialized and listening", "taskName": "Task-2", "timestamp": "2026-02-12T17:17:00", "logger": "affili-ai", "level": "INFO"}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+{"correlation_id": null, "message": "Starting Synthetic Operator certification cycle", "taskName": "Task-4", "timestamp": "2026-02-12T17:18:00", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Failed to publish to Redis channel ws:system:synthetic: Error 22 connecting to localhost:6379. The remote computer refused the network connection.", "taskName": "Task-4", "timestamp": "2026-02-12T17:18:05", "logger": "app.core.redis_bus", "level": "ERROR"}
+{"correlation_id": null, "message": "Synthetic Operator error: (sqlite3.OperationalError) no such table: synthetic_audits\n[SQL: INSERT INTO synthetic_audits (id, timestamp, status, results, duration_ms) VALUES (?, ?, ?, ?, ?)]\n[parameters: ('b700ec7d-f0b5-4d40-ae51-ea16129468a8', '2026-02-12 12:18:05.265085', 'UP', '{\"auth\": \"UP\", \"task_flow\": \"UP\", \"broadcasting\": \"UP\", \"errors\": []}', 4291)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)", "taskName": "Task-4", "timestamp": "2026-02-12T17:18:05", "logger": "app.services.synthetic_operator", "level": "ERROR"}
+{"correlation_id": null, "message": "Synthetic Operator background task error: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (sqlite3.OperationalError) no such table: synthetic_audits\n[SQL: INSERT INTO synthetic_audits (id, timestamp, status, results, duration_ms) VALUES (?, ?, ?, ?, ?)]\n[parameters: ('b700ec7d-f0b5-4d40-ae51-ea16129468a8', '2026-02-12 12:18:05.265085', 'UP', '{\"auth\": \"UP\", \"task_flow\": \"UP\", \"broadcasting\": \"UP\", \"errors\": []}', 4291)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8) (Background on this error at: https://sqlalche.me/e/20/7s2a)", "taskName": "Task-4", "timestamp": "2026-02-12T17:18:05", "logger": "affili-ai", "level": "ERROR"}
+{"correlation_id": null, "message": "Starting Synthetic Operator certification cycle", "taskName": "Task-4", "timestamp": "2026-02-12T17:28:05", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Failed to publish to Redis channel ws:system:synthetic: Error 22 connecting to localhost:6379. The remote computer refused the network connection.", "taskName": "Task-4", "timestamp": "2026-02-12T17:28:09", "logger": "app.core.redis_bus", "level": "ERROR"}
+{"correlation_id": null, "message": "Synthetic Operator error: (sqlite3.OperationalError) no such table: synthetic_audits\n[SQL: INSERT INTO synthetic_audits (id, timestamp, status, results, duration_ms) VALUES (?, ?, ?, ?, ?)]\n[parameters: ('26d1cf7d-0ba2-4752-a776-1b4aa3423da2', '2026-02-12 12:28:09.369670', 'UP', '{\"auth\": \"UP\", \"task_flow\": \"UP\", \"broadcasting\": \"UP\", \"errors\": []}', 4096)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)", "taskName": "Task-4", "timestamp": "2026-02-12T17:28:09", "logger": "app.services.synthetic_operator", "level": "ERROR"}
+{"correlation_id": null, "message": "Synthetic Operator background task error: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (sqlite3.OperationalError) no such table: synthetic_audits\n[SQL: INSERT INTO synthetic_audits (id, timestamp, status, results, duration_ms) VALUES (?, ?, ?, ?, ?)]\n[parameters: ('26d1cf7d-0ba2-4752-a776-1b4aa3423da2', '2026-02-12 12:28:09.369670', 'UP', '{\"auth\": \"UP\", \"task_flow\": \"UP\", \"broadcasting\": \"UP\", \"errors\": []}', 4096)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8) (Background on this error at: https://sqlalche.me/e/20/7s2a)", "taskName": "Task-4", "timestamp": "2026-02-12T17:28:09", "logger": "affili-ai", "level": "ERROR"}

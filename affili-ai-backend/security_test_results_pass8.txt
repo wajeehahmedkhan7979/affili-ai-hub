@@ -1,0 +1,49 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-7.4.3, pluggy-1.6.0 -- D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend
+plugins: anyio-3.7.1, asyncio-0.21.1, cov-4.1.0
+asyncio: mode=Mode.STRICT
+collecting ... collected 4 items
+
+tests/system/test_security_hardening.py::test_login_behavioral_success_and_logging PASSED [ 25%]
+tests/system/test_security_hardening.py::test_login_risk_escalation_on_failure PASSED [ 50%]
+tests/system/test_security_hardening.py::test_login_blocked_on_high_risk PASSED [ 75%]
+tests/system/test_security_hardening.py::test_progressive_backoff_applied FAILED [100%]
+
+================================== FAILURES ===================================
+______________________ test_progressive_backoff_applied _______________________
+tests\system\test_security_hardening.py:171: in test_progressive_backoff_applied
+    assert duration >= 0.9
+E   assert 0.008204460144042969 >= 0.9
+---------------------------- Captured stdout setup ----------------------------
+{"correlation_id": null, "message": "Starting AFFILI-AI Backend v1.0.0", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T15:25:49", "logger": "affili-ai", "level": "INFO"}
+{"correlation_id": null, "message": "Environment: development", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T15:25:49", "logger": "affili-ai", "level": "INFO"}
+----------------------------- Captured log setup ------------------------------
+INFO     affili-ai:main.py:66 Starting AFFILI-AI Backend v1.0.0
+INFO     affili-ai:main.py:67 Environment: development
+---------------------------- Captured stdout call -----------------------------
+{"correlation_id": null, "message": "HTTP Request: POST http://testserver/api/v1/auth/login \"HTTP/1.1 403 Forbidden\"", "taskName": null, "timestamp": "2026-02-12T15:25:49", "logger": "httpx", "level": "INFO"}
+------------------------------ Captured log call ------------------------------
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 403 Forbidden"
+-------------------------- Captured stdout teardown ---------------------------
+{"correlation_id": null, "message": "Shutting down application", "taskName": "anyio.from_thread.BlockingPortal._call_func", "timestamp": "2026-02-12T15:25:49", "logger": "affili-ai", "level": "INFO"}
+---------------------------- Captured log teardown ----------------------------
+INFO     affili-ai:main.py:70 Shutting down application
+============================== warnings summary ===============================
+app\db\base.py:4
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\app\db\base.py:4: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+venv\Lib\site-packages\pydantic\_internal\_config.py:295: 14 warnings
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic\_internal\_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+venv\Lib\site-packages\pydantic_settings\sources.py:659
+  D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_settings\sources.py:659: UserWarning: directory "\run\secrets" does not exist
+    warnings.warn(f'directory "{path}" does not exist')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/system/test_security_hardening.py::test_progressive_backoff_applied
+================== 1 failed, 3 passed, 16 warnings in 6.34s ===================

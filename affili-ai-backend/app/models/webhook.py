@@ -2,7 +2,8 @@
 Webhook models for event streaming.
 """
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Text, Integer, JSON
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 import uuid
@@ -19,7 +20,7 @@ class WebhookConfig(Base):
     secret = Column(String(255), nullable=False) # For HMAC signing
     event_types = Column(JSON().with_variant(JSONB, "postgresql"), nullable=False) # e.g. ["task.completed", "task.failed"]
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 class WebhookDelivery(Base):
     """Log of webhook delivery attempts."""
@@ -34,4 +35,4 @@ class WebhookDelivery(Base):
     response_body = Column(Text, nullable=True)
     success = Column(Boolean, default=False)
     attempt_count = Column(Integer, default=1)
-    delivered_at = Column(DateTime, default=datetime.utcnow)
+    delivered_at = Column(DateTime, default=utcnow)

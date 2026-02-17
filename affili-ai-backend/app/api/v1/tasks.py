@@ -20,6 +20,8 @@ from app.services.audit_service import log_audit_event, AuditEventType
 from app.core.rate_limiter import check_rate_limit
 from app.api.dependencies import verify_tenant, require_roles, get_current_user, get_optional_user
 from app.core.tenant import get_tenant_id
+from app.core.logging import logger
+from app.core.time import utcnow
 from app.models.user import UserRole, User
 from typing import List, Optional
 import uuid
@@ -66,6 +68,8 @@ def create_task(
         db.commit()
         
         return task
+    except HTTPException:
+        raise
     except Exception as e:
         import traceback
         with open("backend_error.log", "a") as f:
@@ -121,9 +125,10 @@ def claim_task_endpoint(
     Supports pool-based assignment.
     """
     agent_pool = getattr(claim_req, "agent_pool", "default")
-    task = svc_claim_task(db, task_id, claim_req.agent_id, agent_pool=agent_pool)
+    public_key = getattr(claim_req, "public_key", None)
+    task = svc_claim_task(db, task_id, claim_req.agent_id, agent_pool=agent_pool, public_key=public_key)
     if not task:
-        raise HTTPException(status_code=409, detail="Task already claimed or not found")
+        raise HTTPException(status_code=409, detail="Task already claimed, not found, or agent identity mismatch")
     return task
 
 
@@ -131,6 +136,7 @@ def claim_task_endpoint(
 async def update_task(
     task_id: uuid.UUID,
     update_in: TaskUpdate,
+    request: Request,
     authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db),
     current_human: Optional[User] = Depends(get_optional_user)
@@ -170,6 +176,43 @@ async def update_task(
     if not authenticated:
         raise HTTPException(status_code=401, detail="Not authorized to update tasks")
 
+    # 3. Signature Verification (v2)
+    from app.core.agent_trust import verify_agent_signature
+    from app.models.agent import Agent
+    from app.core.tenant import get_tenant_id
+    
+    task_obj = get_task(db, task_id)
+    if not task_obj:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    if actor_type == "AGENT" and task_obj.agent_id:
+        agent = db.query(Agent).filter(
+            Agent.id == task_obj.agent_id, 
+            Agent.tenant_id == uuid.UUID(get_tenant_id())
+        ).first()
+        
+        if agent and agent.pinned_public_key:
+            signature = request.headers.get("X-Agent-Signature")
+            timestamp = request.headers.get("X-Agent-Timestamp")
+            
+            if not signature or not timestamp:
+                logger.warning(f"Signature missing for signed agent {agent.id}")
+                raise HTTPException(status_code=401, detail="Signature required for this agent")
+            
+            # Replay protection: Reject if timestamp is more than 5 minutes old
+            try:
+                ts_int = int(timestamp)
+                now_ts = int(utcnow().timestamp())
+                if abs(now_ts - ts_int) > 300:
+                    raise HTTPException(status_code=401, detail="Signature expired")
+            except (ValueError, TypeError):
+                raise HTTPException(status_code=401, detail="Invalid timestamp")
+
+            message = f"{task_id}:{timestamp}"
+            if not verify_agent_signature(agent.pinned_public_key, signature, message):
+                logger.warning(f"Signature verification failed for agent {agent.id}")
+                raise HTTPException(status_code=401, detail="Invalid agent signature")
+
     task = update_task_status(
         db,
         task_id,
@@ -178,8 +221,6 @@ async def update_task(
         update_in.logs,
         update_in.screenshot_url,
         update_in.error_message,
-        update_in.operator_confidence,
-        update_in.feedback_json,
     )
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -287,7 +328,8 @@ def claim_next_task(
     
     from app.services.task_dispatcher import find_and_claim_task
     agent_pool = getattr(poll_req, "agent_pool", "default")
-    task = find_and_claim_task(db, poll_req.agent_id, agent_pool=agent_pool)
+    public_key = getattr(poll_req, "public_key", None)
+    task = find_and_claim_task(db, poll_req.agent_id, agent_pool=agent_pool, public_key=public_key)
     return task
 
 
@@ -295,10 +337,37 @@ def claim_next_task(
 @router.post("/{task_id}/heartbeat", status_code=status.HTTP_200_OK)
 def heartbeat_task(
     task_id: uuid.UUID,
+    request: Request,
     db: Session = Depends(get_db),
 ):
-    """Update task heartbeat."""
-    from app.services.task_dispatcher import update_heartbeat
+    """Update task heartbeat with signature verification."""
+    from app.services.task_dispatcher import update_heartbeat, get_task
+    from app.core.agent_trust import verify_agent_signature
+    from app.models.agent import Agent
+    from app.core.tenant import get_tenant_id
+    
+    task_obj = get_task(db, task_id)
+    if not task_obj:
+        raise HTTPException(status_code=404, detail="Task not found")
+        
+    # Optional Signature verification if agent is pinned
+    if task_obj.agent_id:
+        agent = db.query(Agent).filter(
+            Agent.id == task_obj.agent_id, 
+            Agent.tenant_id == uuid.UUID(get_tenant_id())
+        ).first()
+        
+        if agent and agent.pinned_public_key:
+            signature = request.headers.get("X-Agent-Signature")
+            timestamp = request.headers.get("X-Agent-Timestamp")
+            
+            if not signature or not timestamp:
+                raise HTTPException(status_code=401, detail="Signature required")
+                
+            message = f"{task_id}:{timestamp}"
+            if not verify_agent_signature(agent.pinned_public_key, signature, message):
+                raise HTTPException(status_code=401, detail="Invalid signature")
+
     success = update_heartbeat(db, task_id)
     if not success:
         raise HTTPException(status_code=404, detail="Task not found")

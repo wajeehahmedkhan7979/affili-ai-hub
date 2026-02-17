@@ -37,3 +37,19 @@ def set_tenant_id(tenant_id: str) -> None:
 def reset_tenant_id() -> None:
     """Reset tenant ID to default."""
     _current_tenant_id.set(DEFAULT_TENANT_ID)
+
+
+def get_tenant_id_dependency(x_tenant_id: Optional[str] = None) -> str:
+    """
+    FastAPI dependency to get the tenant ID from headers or context.
+    
+    Args:
+        x_tenant_id: Optional header 'X-Tenant-ID'
+        
+    Returns:
+        str: Tenant UUID string
+    """
+    if x_tenant_id:
+        set_tenant_id(x_tenant_id)
+        return x_tenant_id
+    return get_tenant_id()

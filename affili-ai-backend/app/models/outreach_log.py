@@ -5,7 +5,8 @@ Stores every outreach attempt for full audit trail and compliance.
 """
 
 from sqlalchemy import Column, String, DateTime, Text, ForeignKey, Enum as SQLEnum
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB, JSON
 from datetime import datetime
 import uuid
@@ -43,7 +44,7 @@ class OutreachLog(Base):
     email_subject = Column(String(500), nullable=True)
     
     # Delivery info
-    sent_at = Column(DateTime, default=datetime.utcnow, index=True)
+    sent_at = Column(DateTime, default=utcnow, index=True)
     sent_via = Column(String(50), nullable=True)  # email, contact_form, etc.
     
     # Response tracking
@@ -55,8 +56,8 @@ class OutreachLog(Base):
     extra_metadata = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow, index=True)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     
     def __repr__(self) -> str:
         return f"<OutreachLog(id={self.id}, merchant='{self.merchant_name}', status={self.response_status})>"

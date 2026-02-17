@@ -22,6 +22,8 @@ from app.api.v1.metrics import router as metrics_router
 from app.api.v1.governance import router as governance_router
 from app.api.v1.operator import router as operator_router
 from app.api.v1.agents import router as agents_router
+from app.api.v1.prompts import router as prompts_router
+from app.api.v1.workflows import router as workflows_router
 
 __all__ = [
     "health_router",
@@ -46,4 +48,5 @@ __all__ = [
     "governance_router",
     "operator_router",
     "agents_router",
+    "prompts_router",
 ]

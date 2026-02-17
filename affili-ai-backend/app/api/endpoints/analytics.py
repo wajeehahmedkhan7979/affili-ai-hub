@@ -11,10 +11,13 @@ from datetime import datetime, timedelta, date
 from typing import Dict, Any, List
 import uuid
 
+from app.core.time import utcnow
 from app.db.session import get_db
 from app.core.tenant import get_tenant_id_dependency
 from app.models.task import Task, TaskStatus
 from app.models.usage import TenantUsage
+from app.models.llm_usage_log import LLMUsageLog
+from app.models.prompt_template import PromptTemplate
 from app.services.cost_governance import cost_governance
 
 router = APIRouter()
@@ -75,7 +78,7 @@ def get_throughput_metrics(
     Used for the 'Tasks per Minute' chart.
     """
     tenant_uuid = uuid.UUID(tenant_id)
-    cutoff = datetime.utcnow() - timedelta(minutes=window_minutes)
+    cutoff = utcnow() - timedelta(minutes=window_minutes)
     
     # 1. Tasks per minute (Histogram)
     # Note: Requires Postgres date_trunc, using generic SQL for compatibility
@@ -139,7 +142,7 @@ def get_system_health(
     Used for 'Error Distribution' donut chart.
     """
     tenant_uuid = uuid.UUID(tenant_id)
-    cutoff = datetime.utcnow() - timedelta(hours=24)
+    cutoff = utcnow() - timedelta(hours=24)
     
     # Error distribution by type (using error_message substring or generic status)
     # Simple version: Status distribution
@@ -171,4 +174,59 @@ def get_system_health(
     return {
         "status_distribution": distribution,
         "recent_failures": formatted_failures
+    }
+
+
+@router.get("/ai", response_model=Dict[str, Any])
+def get_ai_analytics(
+    window_days: int = Query(7, ge=1, le=30),
+    tenant_id: str = Depends(get_tenant_id_dependency),
+    db: Session = Depends(get_db)
+):
+    """
+    Get AI performance analytics (confidence, latency, cost by version).
+    """
+    tenant_uuid = uuid.UUID(tenant_id)
+    cutoff = utcnow() - timedelta(days=window_days)
+    
+    # 1. Average Confidence & Latency
+    metrics = db.query(
+        func.avg(LLMUsageLog.confidence).label("avg_confidence"),
+        func.avg(LLMUsageLog.latency_ms).label("avg_latency"),
+        func.count(LLMUsageLog.id).label("total_calls")
+    ).filter(
+        LLMUsageLog.tenant_id == tenant_uuid,
+        LLMUsageLog.created_at >= cutoff
+    ).one()
+    
+    # 2. Distribution by Prompt Version
+    version_stats = db.query(
+        PromptTemplate.name.label("name"),
+        PromptTemplate.version.label("version"),
+        func.count(LLMUsageLog.id).label("calls"),
+        func.avg(LLMUsageLog.confidence).label("avg_confidence"),
+        func.avg(LLMUsageLog.latency_ms).label("avg_latency")
+    ).join(
+        LLMUsageLog, LLMUsageLog.prompt_version_id == PromptTemplate.id
+    ).filter(
+        LLMUsageLog.tenant_id == tenant_uuid,
+        LLMUsageLog.created_at >= cutoff
+    ).group_by(PromptTemplate.name, PromptTemplate.version).all()
+    
+    formatted_versions = [
+        {
+            "prompt_name": row.name,
+            "version": row.version,
+            "calls": row.calls,
+            "avg_confidence": round(float(row.avg_confidence), 4) if row.avg_confidence else 0,
+            "avg_latency_ms": round(float(row.avg_latency), 2) if row.avg_latency else 0
+        }
+        for row in version_stats
+    ]
+    
+    return {
+        "avg_confidence": round(float(metrics.avg_confidence), 4) if metrics.avg_confidence else 0,
+        "avg_latency_ms": round(float(metrics.avg_latency), 2) if metrics.avg_latency else 0,
+        "total_calls": metrics.total_calls,
+        "version_performance": formatted_versions
     }

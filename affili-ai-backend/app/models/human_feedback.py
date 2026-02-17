@@ -6,7 +6,8 @@ that improves RAG accuracy over time.
 """
 
 from sqlalchemy import Column, String, DateTime, Text, Float, ForeignKey, Enum as SQLEnum, Boolean
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB, JSON
 from datetime import datetime
 import uuid
@@ -60,7 +61,7 @@ class HumanFeedback(Base):
     extra_metadata = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utcnow, index=True)
     
     def __repr__(self) -> str:
         return f"<HumanFeedback(id={self.id}, label='{self.field_label}', verdict={self.verdict})>"

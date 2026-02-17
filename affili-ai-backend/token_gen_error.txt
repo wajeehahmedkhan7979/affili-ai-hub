@@ -1,0 +1,41 @@
+﻿venv\Scripts\python : D:\PROJECTS-REPOS\AFFIL
+IATE-PROJ\affili-ai-hub\affili-ai-backend\ven
+v\Lib\site-packages\pydantic_settings\sources
+.py:659: UserWarning: directory 
+"\run\secrets" does not exist
+At line:1 char:1
++ venv\Scripts\python create_token.py 2>&1 | 
+Out-File -FilePath token_g ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified:  
+   (D:\PROJECTS-REP... does not exist:Strin  
+  g) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandE 
+   rror
+ 
+  warnings.warn(f'directory "{path}" does 
+not exist')
+Traceback (most recent call last):
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affi
+li-ai-hub\affili-ai-backend\create_token.py",
+ line 12, in <module>
+    from app.models.user import User, 
+UserRole
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affi
+li-ai-hub\affili-ai-backend\app\models\__init
+__.py", line 3, in <module>
+    from app.models.tenant import Tenant
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affi
+li-ai-hub\affili-ai-backend\app\models\tenant
+.py", line 11, in <module>
+    from app.db.base import Base
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affi
+li-ai-hub\affili-ai-backend\app\db\base.py", 
+line 9, in <module>
+    from app.models.tenant import Tenant
+ImportError: cannot import name 'Tenant' 
+from partially initialized module 
+'app.models.tenant' (most likely due to a 
+circular import) (D:\PROJECTS-REPOS\AFFILIATE
+-PROJ\affili-ai-hub\affili-ai-backend\app\mod
+els\tenant.py)

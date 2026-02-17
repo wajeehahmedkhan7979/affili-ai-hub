@@ -2,7 +2,8 @@
 Policy models for automation governance.
 """
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Text, JSON
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 import uuid
@@ -20,5 +21,5 @@ class Policy(Base):
     # Policy rules: e.g. {"max_tasks_per_day": 100, "allowed_domains": ["*.com"]}
     rules = Column(JSON().with_variant(JSONB, "postgresql"), nullable=False)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 import uuid
 from typing import Optional, List
 
+from app.core.time import utcnow
 from app.db.session import get_db
 from app.models.tenant import Tenant
 from app.models.user import User, UserRole
@@ -52,10 +53,8 @@ async def verify_tenant(
             tenant = Tenant(
                 id=tenant_uuid,
                 name="Default Tenant",
-                slug="default",
-                plan="professional",
                 is_active=True,
-                created_at=datetime.utcnow()
+                created_at=utcnow()
             )
             db.add(tenant)
             db.commit()
@@ -73,78 +72,74 @@ from app.models.user import User, UserRole
 from app.core.tenant import get_tenant_id
 
 # JWT OAuth2 scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login", auto_error=False)
+# JWT OAuth2 scheme
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 async def get_current_user(
-    tenant_id: str = Depends(verify_tenant),
-    x_user_email: Optional[str] = Header(None, alias="X-User-Email"),
     token: Optional[str] = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ) -> User:
     """
-    Get current user from JWT or Identity Header (fallback).
-    Also sets tenant context (already set by verify_tenant).
+    Get current user from JWT.
+    Also sets tenant context.
     """
-    tenant_uuid = uuid.UUID(tenant_id)
-    user = None
-
-    # 1. Try JWT first
-    if token:
-        payload = decode_token(token)
-        if payload and payload.get("type") == "access":
-            user_id = payload.get("sub")
-            tid = payload.get("tid")
-            
-            # Cross-tenant safety check
-            if tid != tenant_id:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Token tenant mismatch"
-                )
-            
-            user = db.query(User).filter(
-                User.id == uuid.UUID(user_id),
-                User.tenant_id == tenant_uuid,
-                User.is_active == True
-            ).first()
-
-    # 2. Fallback to Header identity if no JWT or JWT failed
-    if not user and x_user_email:
-        user = db.query(User).filter(
-            User.tenant_id == tenant_uuid,
-            User.email == x_user_email,
-            User.is_active == True
-        ).first()
-
-    # 3. Dev Fallback for easier local testing (if enabled in settings)
-    from app.core.config import get_settings
-    settings = get_settings()
-    
-    if not user and settings.DEBUG and x_user_email == "dev@example.com":
-        # Create a transient user object for dev mode
-        # This avoids crashes when DB is not seeded but we need to test UI
-        return User(
-            id=uuid.uuid4(),
-            tenant_id=tenant_uuid,
-            email=x_user_email,
-            role=UserRole.OWNER.value,  # Use .value for string format
-            is_active=True,
-            refresh_token_version=1,
-            hashed_password=None
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication token missing",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-
+        
+    payload = decode_token(token)
+    if not payload or payload.get("type") != "access":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    user_id = payload.get("sub")
+    tid = payload.get("tid")
+    
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token missing user identification",
+        )
+        
+    user = db.query(User).filter(
+        User.id == uuid.UUID(user_id),
+        User.is_active == True
+    ).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found or inactive",
+        )
+        
+    # Security: Ensure token's tenant matches user's tenant
+    if tid and str(user.tenant_id) != tid:
+         raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Tenant access denied",
+        )
+        
+    # Set context
+    set_tenant_id(str(user.tenant_id))
+    
     return user
 
 
 async def get_optional_user(
-    tenant_id: str = Depends(verify_tenant),
-    x_user_email: Optional[str] = Header(None, alias="X-User-Email"),
     token: Optional[str] = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ) -> Optional[User]:
     """Get current user if available, but don't raise if not."""
     try:
-        return await get_current_user(tenant_id, x_user_email, token, db)
+        if not token:
+            return None
+        return await get_current_user(token, db)
     except HTTPException:
         return None
 

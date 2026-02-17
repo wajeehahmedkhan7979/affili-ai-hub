@@ -11,6 +11,7 @@ Ensures safe, controlled autonomy scaling.
 
 from sqlalchemy.orm import Session  
 from sqlalchemy import func
+from app.core.time import utcnow
 from app.models.task import Task, TaskStatus
 from app.models.agent import Agent
 from app.models.metrics import TaskMetrics
@@ -106,7 +107,7 @@ class AdaptiveThreshold:
         days: int
     ) -> float:
         """Calculate program success rate."""
-        since = datetime.utcnow() - timedelta(days=days)
+        since = utcnow() - timedelta(days=days)
         
         query = db.query(TaskMetrics).filter(
             TaskMetrics.tenant_id == tenant_id,
@@ -137,7 +138,7 @@ class AdaptiveThreshold:
         days: int
     ) -> float:
         """Calculate CAPTCHA encounter frequency."""
-        since = datetime.utcnow() - timedelta(days=days)
+        since = utcnow() - timedelta(days=days)
         
         query = db.query(Task).filter(
             Task.tenant_id == tenant_id,

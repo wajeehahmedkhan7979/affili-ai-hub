@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, Any, Optional, Tuple
 import os
+from app.core.time import utcnow
 
 
 class BaseAffiliateAutomation(ABC):
@@ -58,7 +59,7 @@ class BaseAffiliateAutomation(ABC):
     
     def _now(self) -> str:
         """Return current ISO timestamp."""
-        return datetime.utcnow().isoformat()
+        return utcnow().isoformat()
     
     async def _check_for_captcha(self, page) -> Dict[str, Any]:
         """

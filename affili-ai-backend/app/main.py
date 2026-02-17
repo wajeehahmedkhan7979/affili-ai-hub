@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import os
+import asyncio
 
 from app.core.config import get_settings
 from app.core.logging import logger
@@ -46,6 +47,8 @@ from app.api.v1 import (
     governance_router,
     operator_router,
     agents_router,
+    prompts_router, # Added prompts_router
+    workflows_router, # Added workflows_router
 )
 
 # Import Phase 11 health checks
@@ -54,8 +57,25 @@ from app.api.endpoints.health import router as health_check_router
 settings = get_settings()
 
 # Create tables on startup (lazy - only when first accessed)
-# Base.metadata.create_all(bind=get_engine_instance())
+Base.metadata.create_all(bind=get_engine_instance())
 
+
+async def synthetic_operator_task():
+    """Background task for periodic system certification."""
+    from app.services.synthetic_operator import synthetic_op
+    
+    # Wait for app to be fully ready
+    await asyncio.sleep(60) 
+    
+    while True:
+        try:
+            logger.info("Starting Synthetic Operator certification cycle")
+            await synthetic_op.run_certification()
+        except Exception as e:
+            logger.error(f"Synthetic Operator background task error: {e}")
+        
+        # Run every 10 minutes (600 seconds)
+        await asyncio.sleep(600)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -63,9 +83,51 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
+    
+    # DB Check
+    try:
+        from sqlalchemy import inspect
+        from app.db.session import get_engine_instance
+        engine = get_engine_instance()
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
+        logger.info(f"Startup Table Check: {tables}")
+        if 'synthetic_audits' not in tables:
+            logger.warning("Table 'synthetic_audits' MISSING on startup! Attempting emergency creation...")
+            from app.db.base import Base
+            Base.metadata.create_all(bind=engine)
+            logger.info(f"After emergency creation: {inspect(engine).get_table_names()}")
+    except Exception as e:
+        logger.error(f"Startup DB Check Failed: {e}")
+    
+    # Phase 26.3: Initialize Redis Event Bus
+    from app.core.redis_bus import broadcaster
+    from app.core.websockets import manager
+    
+    try:
+        await broadcaster.connect()
+        # Register the WebSocket manager to handle distributed messages
+        await broadcaster.subscribe("ws:tenant:*", manager._handle_remote_message)
+        await broadcaster.subscribe("ws:system:all", manager._handle_remote_message)
+        # Start background listener
+        await broadcaster.start_listening()
+        logger.info("Redis Event Bus initialized and listening")
+    except Exception as e:
+        logger.error(f"Failed to initialize Redis Event Bus: {e}")
+        # In a real production app, we might want to fail hard here 
+        # but for dev we'll allow it to run with degraded WS features
+    
+    # Phase 26.4: Start Synthetic Operator
+    certification_task = asyncio.create_task(synthetic_operator_task())
+    
     yield
     # Shutdown
     logger.info("Shutting down application")
+    certification_task.cancel()
+    try:
+        await broadcaster.disconnect()
+    except Exception as e:
+        logger.warning(f"Error during Redis Event Bus shutdown: {e}")
 
 
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -131,10 +193,11 @@ app.mount("/metrics", metrics_app)
 from app.api.endpoints import health
 app.include_router(health.router, prefix="/health", tags=["health"])
 # Phase 14: UX & Observability
-from app.api.endpoints import analytics
 from app.api.endpoints import websockets
 app.include_router(websockets.router, tags=["websockets"])
-app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
+# app.include_router(# analytics_router, prefix="/api/v1/analytics", tags=["analytics"])
+app.include_router(prompts_router, prefix="/api/v1/prompts", tags=["prompts"])
+app.include_router(workflows_router, prefix="/api/v1/workflows", tags=["workflows"])
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(programs_router, prefix="/api/v1")
 app.include_router(applications_router, prefix="/api/v1")
@@ -165,6 +228,7 @@ app.include_router(metrics_router, prefix="/api/v1") # Prometheus metrics
 app.include_router(governance_router, prefix="/api/v1") # Kill-switch + cost control
 app.include_router(operator_router, prefix="/api/v1") # Human intervention
 app.include_router(agents_router, prefix="/api/v1")
+app.include_router(prompts_router, prefix="/api/v1")
 
 
 # Root endpoint

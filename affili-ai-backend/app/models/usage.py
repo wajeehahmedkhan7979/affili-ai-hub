@@ -3,7 +3,8 @@ Usage metrics model for billing and analytics.
 """
 
 from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey, Date, UniqueConstraint
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
 
@@ -29,7 +30,7 @@ class TenantUsage(Base):
     agent_minutes = Column(Float, default=0.0)  # duration_seconds / 60
     captcha_events = Column(Integer, default=0)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
     __table_args__ = (
         UniqueConstraint("tenant_id", "date", name="uix_tenant_date"),

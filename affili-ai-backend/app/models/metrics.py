@@ -2,8 +2,9 @@
 Task metrics model for SLA tracking.
 """
 
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Float, Integer, Index
-from sqlalchemy import UUID
+from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Float, Integer, Index, JSON
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
 
@@ -37,7 +38,21 @@ class TaskMetrics(Base):
     captcha_detected = Column(Boolean, default=False, index=True)
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utcnow, index=True)
     
     def __repr__(self) -> str:
         return f"<TaskMetrics(task_id={self.task_id}, success={self.success}, duration={self.duration_seconds}s)>"
+
+
+class SyntheticAudit(Base):
+    """Periodic certification results for the Synthetic Operator."""
+    __tablename__ = "synthetic_audits"
+    
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    timestamp = Column(DateTime, default=utcnow, index=True)
+    status = Column(String(20), nullable=False, index=True)  # UP, DEGRADED, DOWN
+    results = Column(JSON, nullable=False)  # Detailed per-test results
+    duration_ms = Column(Integer, nullable=False)
+    
+    def __repr__(self) -> str:
+        return f"<SyntheticAudit(status={self.status}, timestamp={self.timestamp})>"

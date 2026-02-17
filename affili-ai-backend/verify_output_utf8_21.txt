@@ -1,0 +1,218 @@
+﻿venv\Scripts\python : D:\PROJECTS-REPOS\AFFILIATE-PROJ\affil
+i-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_s
+ettings\sources.py:659: UserWarning: directory 
+"\run\secrets" does not exist
+At line:1 char:1
++ venv\Scripts\python verify_phase21.py > 
+verify_output_21.txt 2>&1; Ge ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\PROJECTS-RE 
+   P... does not exist:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  warnings.warn(f'directory "{path}" does not exist')
+Using Tenant: Default Tenant (00000000-0000-0000-0000-000000000000)
+
+--- Creating Workflow Definition ---
+Traceback (most recent call last):
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\base.p
+y", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\defaul
+t.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: 
+workflow_definitions
+
+The above exception was the direct cause of the following 
+exception:
+
+Traceback (most recent call last):
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\verify_phase21.py", line 118, in <module>
+    verify_workflow_flow()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\verify_phase21.py", line 45, in 
+verify_workflow_flow
+    wf_def = workflow_service.create_definition(
+        db,
+    ...<3 lines>...
+        "Verification workflow"
+    )
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\app\services\workflow_service.py", line 29, in 
+create_definition
+    db.commit()
+    ~~~~~~~~~^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\session.p
+y", line 2030, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\state_cha
+nges.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\session.p
+y", line 1311, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\state_cha
+nges.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\session.p
+y", line 1286, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\session.p
+y", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\session.p
+y", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\util\langhelp
+ers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\session.p
+y", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwor
+k.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwor
+k.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, 
+False),
+        
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\persisten
+ce.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\persisten
+ce.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\base.p
+y", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\sql\elements.
+py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\base.p
+y", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\base.p
+y", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\base.p
+y", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, 
+context
+        
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\base.p
+y", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) 
+from e
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\base.p
+y", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\defaul
+t.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) 
+no such table: workflow_definitions
+[SQL: INSERT INTO workflow_definitions (id, tenant_id, 
+name, description, definition, is_active, created_at, 
+updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('c8195a6b-c633-4957-94ee-d5a3f63dde12', 
+'00000000-0000-0000-0000-000000000000', 'Test Sequential 
+Workflow', 'Verification workflow', '{"steps": [{"id": 
+"step_a", "type": "DISCOVER_PROGRAM", "payload": {"query": 
+"test query"}, "next": "step_b"}, {"id": "step_b", "type": 
+"APPLY_PROGRAM", "payload": {"program_data": 
+"context.step_a.found_programs"}}]}', 1, '2026-02-11 
+09:53:48.141051', '2026-02-11 09:53:48.141055')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

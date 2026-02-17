@@ -5,7 +5,8 @@ Tracks every manual action taken by operators on tasks and system.
 """
 
 from sqlalchemy import Column, String, DateTime, Text, ForeignKey, Enum as SQLEnum
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB, JSON
 from datetime import datetime
 import uuid
@@ -46,7 +47,7 @@ class OperatorActionLog(Base):
     extra_metadata = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     
     # Timestamp
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utcnow, index=True)
     
     def __repr__(self) -> str:
         return f"<OperatorActionLog(id={self.id}, action={self.action}, operator={self.operator_id})>"

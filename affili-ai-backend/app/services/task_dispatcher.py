@@ -4,6 +4,7 @@ Task dispatcher service for creating and managing tasks.
 
 from sqlalchemy.orm import Session
 from sqlalchemy import update, select, and_, or_
+from app.core.time import utcnow
 from app.models.task import Task, TaskStatus
 from app.models.usage import TenantUsage
 from app.schemas.task import TaskCreate
@@ -14,9 +15,45 @@ import uuid
 from typing import List, Optional, Dict, Any
 
 
+from app.core.logging import logger
 from fastapi import HTTPException
 from app.services.billing_service import check_task_limit
 from app.services.policy_service import evaluate_action
+from app.models.agent import Agent
+
+def _ensure_agent_identity(db: Session, agent_id: str, public_key: Optional[str] = None) -> bool:
+    """
+    Ensure agent exists and handles public key pinning.
+    Returns True if agent is authorized (new pin or matches existing pin), False otherwise.
+    """
+    tenant_id = uuid.UUID(get_tenant_id())
+    agent = db.query(Agent).filter(Agent.id == agent_id, Agent.tenant_id == tenant_id).first()
+    
+    if not agent:
+        # Create agent record and pin public key if provided
+        agent = Agent(
+            id=agent_id,
+            tenant_id=tenant_id,
+            pinned_public_key=public_key,
+            last_seen=utcnow()
+        )
+        db.add(agent)
+        return True
+    
+    # Update last seen
+    agent.last_seen = utcnow()
+    
+    # Check public key pinning
+    if public_key:
+        if agent.pinned_public_key:
+            if agent.pinned_public_key != public_key:
+                logger.warning(f"Agent {agent_id} attempted to change pinned public key")
+                return False
+        else:
+            # Pin the key for the first time
+            agent.pinned_public_key = public_key
+            
+    return True
 
 def create_task(
     db: Session,
@@ -179,32 +216,18 @@ def claim_task(
     db: Session, 
     task_id: uuid.UUID, 
     agent_id: str,
-    agent_pool: Optional[str] = "default"
+    agent_pool: Optional[str] = "default",
+    public_key: Optional[str] = None
 ) -> Optional[Task]:
     """
     Claim a task for an agent - ATOMIC operation at database level.
     
-    Now supports pool-based assignment:
-    - If task has agent_pool set, only agents from that pool can claim
-    - If task has no pool (None), any agent can claim (backward compat)
-    
-    Uses single UPDATE statement with WHERE clause to ensure only ONE agent
-    can transition a task from PENDING → CLAIMED, regardless of concurrency.
-    
-    Race-condition free:
-    - No pre-read
-    - No check-then-act window
-    - Single SQL statement at DB level
-    
-    Args:
-        db: Database session
-        task_id: Task UUID to claim
-        agent_id: Agent claiming the task
-        agent_pool: Agent's pool name
-        
-    Returns:
-        Claimed Task if successful, None if task was already claimed or doesn't exist
+    Now supports pool-based assignment and agent identity pinning.
     """
+    # 0. Ensure agent identity is valid (pinning check)
+    if not _ensure_agent_identity(db, agent_id, public_key):
+        return None
+        
     # Atomic UPDATE: only succeeds if task is PENDING AND pool matches AND tenant matches
     stmt = update(Task).where(
         (Task.id == task_id) & 
@@ -214,7 +237,7 @@ def claim_task(
     ).values(
         status=TaskStatus.CLAIMED,
         agent_id=agent_id,
-        claimed_at=datetime.utcnow()
+        claimed_at=utcnow()
     )
     
     result = db.execute(stmt)
@@ -233,18 +256,17 @@ def claim_task(
 def find_and_claim_task(
     db: Session,
     agent_id: str,
-    agent_pool: Optional[str] = "default"
+    agent_pool: Optional[str] = "default",
+    public_key: Optional[str] = None
 ) -> Optional[Task]:
     """
     Find the next available task and claim it atomically.
-    
-    Uses UPDATE...RETURNING pattern for true atomicity:
-    - Single SQL statement (no select-update window)
-    - FOR UPDATE SKIP LOCKED on Postgres for zero contention
-    - Guaranteed no double-claims under any concurrency level
-    
-    This is production-grade task queue implementation.
+    Supports agent identity pinning.
     """
+    # 0. Ensure agent identity is valid (pinning check)
+    if not _ensure_agent_identity(db, agent_id, public_key):
+        return None
+        
     tenant_id = uuid.UUID(get_tenant_id())
     is_postgres = db.bind.dialect.name == "postgresql"
     
@@ -272,7 +294,7 @@ def find_and_claim_task(
             .values(
                 status=TaskStatus.CLAIMED,
                 agent_id=agent_id,
-                claimed_at=datetime.utcnow()
+                claimed_at=utcnow()
             )
             .returning(Task)
         )
@@ -309,7 +331,7 @@ def find_and_claim_task(
         
         task.status = TaskStatus.CLAIMED
         task.agent_id = agent_id
-        task.claimed_at = datetime.utcnow()
+        task.claimed_at = utcnow()
         
         db.commit()
         db.refresh(task)
@@ -349,7 +371,7 @@ def update_task_status(
     
     # Set completion timestamp for terminal states
     if status in ["COMPLETED", "FAILED", "PAUSED_FOR_CAPTCHA"]:
-        task.completed_at = datetime.utcnow()
+        task.completed_at = utcnow()
         
         # Record metrics for terminal states
         try:
@@ -372,10 +394,21 @@ def update_task_status(
             )
         except Exception as e:
             print(f"Warning: Failed to trigger webhook for task {task_id}: {e}")
+
+        # Phase 21: Workflow Orchestration Hook
+        try:
+            from app.services.workflow_service import workflow_service
+            print(f"DEBUG: Checking workflow progression for task {task_id}")
+            workflow_service.handle_task_completion(db, task_id)
+            print(f"DEBUG: Workflow progression completed for task {task_id}")
+        except Exception as e:
+            import traceback
+            print(f"ERROR: Failed to progress workflow for task {task_id}: {e}")
+            print(f"Traceback: {traceback.format_exc()}")
     
     # Set started_at if transitioning to RUNNING
     if status == "RUNNING" and not task.started_at:
-        task.started_at = datetime.utcnow()
+        task.started_at = utcnow()
         # Trigger started webhook
         try:
             from app.services.webhook_service import trigger_webhook_event
@@ -461,7 +494,7 @@ def update_heartbeat(db: Session, task_id: uuid.UUID) -> bool:
     if not task:
         return False
     
-    task.last_heartbeat = datetime.utcnow()
+    task.last_heartbeat = utcnow()
     db.commit()
     return True
 
@@ -479,7 +512,7 @@ def release_stale_tasks(db: Session, timeout_seconds: int = 300) -> int:
     """
     from sqlalchemy.orm import load_only
     
-    cutoff = datetime.utcnow().timestamp() - timeout_seconds
+    cutoff = utcnow().timestamp() - timeout_seconds
     cutoff_dt = datetime.fromtimestamp(cutoff)
     
     # Find stale RUNNING tasks using load_only to avoid non-existent columns

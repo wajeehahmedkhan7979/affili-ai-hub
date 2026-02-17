@@ -3,6 +3,7 @@ Tenant model for multi-tenant isolation.
 """
 
 from sqlalchemy import Column, String, DateTime, Boolean
+from app.core.time import utcnow
 from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
@@ -18,8 +19,8 @@ class Tenant(Base):
     name = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, index=True)
     legal_hold = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow, index=True)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     
     def __repr__(self) -> str:
         return f"<Tenant(id={self.id}, name={self.name})>"

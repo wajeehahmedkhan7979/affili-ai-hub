@@ -5,6 +5,7 @@ Uses LLM (Gemini) to generate personalized outreach emails.
 """
 
 import google.generativeai as genai
+from app.core.time import utcnow
 from app.core.config import get_settings
 from app.core.logging import logger
 from app.models.outreach_log import OutreachLog, OutreachStatus
@@ -182,7 +183,7 @@ def update_outreach_response(
     
     log.response_status = status
     log.response_text = response_text
-    log.response_received_at = datetime.utcnow()
+    log.response_received_at = utcnow()
     
     db.commit()
     db.refresh(log)

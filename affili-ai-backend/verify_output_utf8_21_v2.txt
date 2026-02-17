@@ -1,0 +1,104 @@
+﻿venv\Scripts\python : D:\PROJECTS-REPOS\AFFILIATE-PROJ\affil
+i-ai-hub\affili-ai-backend\venv\Lib\site-packages\pydantic_s
+ettings\sources.py:659: UserWarning: directory 
+"\run\secrets" does not exist
+At line:1 char:1
++ venv\Scripts\python verify_phase21.py > 
+verify_output_21_v2.txt 2>&1; ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\PROJECTS-RE 
+   P... does not exist:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  warnings.warn(f'directory "{path}" does not exist')
+Using Tenant: Default Tenant (00000000-0000-0000-0000-000000000000)
+
+--- Creating Workflow Definition ---
+Created Definition: 0b27d203-73d8-4198-87bd-85cfb644407f
+
+--- Starting Workflow Instance ---
+Traceback (most recent call last):
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\verify_phase21.py", line 123, in <module>
+    verify_workflow_flow()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\verify_phase21.py", line 61, in 
+verify_workflow_flow
+    instance = workflow_service.start_instance(db, 
+tenant_id, wf_def.id)
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\app\services\workflow_service.py", line 56, in 
+start_instance
+    self._execute_step(db, instance, first_step)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\app\services\workflow_service.py", line 109, 
+in _execute_step
+    task = create_task(
+        db,
+    ...<2 lines>...
+        agent_pool=step_definition.get("agent_pool", 
+"default")
+    )
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\app\services\task_dispatcher.py", line 96, in 
+create_task
+    ).first()
+      ~~~~~^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\query.py"
+, line 2759, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\result
+.py", line 1803, in first
+    return self._only_one_row(
+           ~~~~~~~~~~~~~~~~~~^
+        raise_for_second_row=False, raise_for_none=False, 
+scalar=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^
+    )
+    ^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\result
+.py", line 769, in _only_one_row
+    row: Optional[_InterimRowType[Any]] = 
+onerow(hard_close=True)
+                                          
+~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\result
+.py", line 1690, in _fetchone_impl
+    return 
+self._real_result._fetchone_impl(hard_close=hard_close)
+           
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\result
+.py", line 2276, in _fetchone_impl
+    row = next(self.iterator, _NO_ROW)
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\orm\loading.p
+y", line 220, in chunks
+    fetch = cursor._raw_all_rows()
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\engine\result
+.py", line 553, in _raw_all_rows
+    return [make_row(row) for row in rows]
+            ~~~~~~~~^^^^^
+  File "lib/sqlalchemy/cyextension/resultproxy.pyx", line 
+22, in sqlalchemy.cyextension.resultproxy.BaseRow.__init__
+  File "lib/sqlalchemy/cyextension/resultproxy.pyx", line 
+79, in sqlalchemy.cyextension.resultproxy._apply_processors
+  File "D:\PROJECTS-REPOS\AFFILIATE-PROJ\affili-ai-hub\affil
+i-ai-backend\venv\Lib\site-packages\sqlalchemy\sql\sqltypes.
+py", line 3759, in process
+    value = _python_UUID(value)
+  File "C:\Python313\Lib\uuid.py", line 178, in __init__
+    hex = hex.replace('urn:', '').replace('uuid:', '')
+          ^^^^^^^^^^^
+AttributeError: 'int' object has no attribute 'replace'

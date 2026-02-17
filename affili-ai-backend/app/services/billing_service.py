@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 import uuid
 from datetime import datetime, timedelta
 
+from app.core.time import utcnow
 from app.models.billing import BillingPlan, TenantBilling, BillingStatus
 from app.models.usage import TenantUsage
 
@@ -24,7 +25,7 @@ def get_tenant_billing(db: Session, tenant_id: uuid.UUID) -> TenantBilling:
             tenant_id=tenant_id,
             plan_id=free_plan.id,
             status=BillingStatus.ACTIVE,
-            cycle_start=datetime.utcnow()
+            cycle_start=utcnow()
         )
         db.add(billing)
         db.commit()

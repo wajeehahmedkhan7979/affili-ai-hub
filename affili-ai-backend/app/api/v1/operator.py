@@ -15,6 +15,7 @@ from typing import Optional, List
 from datetime import datetime
 import uuid
 
+from app.core.time import utcnow
 from app.db.session import get_db
 from app.core.auth import require_roles, get_current_user
 from app.models import Task, OperatorActionLog, OperatorActionType
@@ -135,7 +136,7 @@ def resume_task(
     
     # Update task status
     task.status = "PENDING"  # Re-queue for agent pickup
-    task.updated_at = datetime.utcnow()
+    task.updated_at = utcnow()
     
     if request.reason:
         if not task.payload:
@@ -159,7 +160,7 @@ def resume_task(
     return {
         "task_id": str(task_id),
         "status": "PENDING",
-        "resumed_at": datetime.utcnow().isoformat(),
+        "resumed_at": utcnow().isoformat(),
         "resumed_by": str(current_user.id)
     }
 
@@ -184,7 +185,7 @@ def cancel_task(
     
     # Update to FAILED_OPERATOR_CANCEL
     task.status = "FAILED_OPERATOR_CANCEL"
-    task.updated_at = datetime.utcnow()
+    task.updated_at = utcnow()
     
     if not task.payload:
         task.payload = {}
@@ -207,6 +208,6 @@ def cancel_task(
     return {
         "task_id": str(task_id),
         "status": "FAILED_OPERATOR_CANCEL",
-        "cancelled_at": datetime.utcnow().isoformat(),
+        "cancelled_at": utcnow().isoformat(),
         "reason": request.reason
     }

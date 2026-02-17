@@ -21,11 +21,12 @@ router = APIRouter(prefix="/programs", tags=["programs"], dependencies=[Depends(
 
 class ProgramBase(BaseModel):
     name: str
-    signup_url: str
+    signup_url: Optional[str] = None
     description: Optional[str] = None
     affiliate_url: str
     source: Optional[str] = "manual"
     confidence_score: Optional[float] = None
+    base_url: Optional[str] = None
 
 
 class ProgramCreate(ProgramBase):

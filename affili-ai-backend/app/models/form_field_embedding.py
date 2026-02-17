@@ -4,7 +4,8 @@ Stores successful form field responses with vector embeddings for similarity sea
 """
 
 from sqlalchemy import Column, String, DateTime, Text, Float, ForeignKey, Index, Integer, JSON
-from sqlalchemy import UUID
+from app.core.time import utcnow
+from app.db.uuid_type import UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 import uuid
@@ -63,8 +64,8 @@ class FormFieldEmbedding(Base):
     form_context = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow, index=True)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     
     def __repr__(self) -> str:
         return f"<FormFieldEmbedding(id={self.id}, label='{self.field_label[:30]}', type={self.field_type})>"

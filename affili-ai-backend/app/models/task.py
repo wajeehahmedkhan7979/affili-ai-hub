@@ -4,6 +4,7 @@ Task ORM model - represents work items for agents to execute.
 
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Text, Enum as SQLEnum, Integer, Index, JSON
 from sqlalchemy.dialects.postgresql import JSONB
+from app.core.time import utcnow
 from app.db.uuid_type import UUID
 from datetime import datetime
 import uuid
@@ -17,6 +18,7 @@ class TaskType(str, enum.Enum):
     DISCOVER_PROGRAM = "DISCOVER_PROGRAM"
     APPLY_PROGRAM = "APPLY_PROGRAM"
     PUBLISH_OFFER = "PUBLISH_OFFER"
+    SYNTHETIC_CHECK = "SYNTHETIC_CHECK"
 
 
 class TaskStatus(str, enum.Enum):
@@ -55,8 +57,8 @@ class Task(Base):
     logs = Column(Text, nullable=True)
     screenshot_url = Column(String(500), nullable=True)
     error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow, index=True)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     claimed_at = Column(DateTime, nullable=True)
     started_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
